@@ -1,0 +1,10 @@
+import React from "react";
+
+export function MicrophoneIcon() {
+  return (
+<svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M16.6668 10.6666V12C16.6668 14.5773 14.5775 16.6666 12.0002 16.6666M7.3335 10.6666V12C7.3335 14.5773 9.42283 16.6666 12.0002 16.6666M12.0002 16.6666V18.6666M9.3335 18.6666H14.6668M12.0002 14C10.8956 14 10.0002 13.1045 10.0002 12V7.33331C10.0002 6.22874 10.8956 5.33331 12.0002 5.33331C13.1047 5.33331 14.0002 6.22874 14.0002 7.33331V12C14.0002 13.1045 13.1047 14 12.0002 14Z" stroke="#D0D5DD" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+  );
+}
+
