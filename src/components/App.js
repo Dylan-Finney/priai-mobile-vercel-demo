@@ -130,6 +130,32 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
               })
              })
              console.log(response)
+             //Text Complete
+            //  const data = response.body
+            //   if (!data) {
+            //     return
+            //   }
+            //   const reader = data.getReader()
+            //   const decoder = new TextDecoder()
+            //   let done = false
+            //   var answer = ""
+          
+            //   // const responseReceived = Date.now()
+            //   while (!done) {
+            //     const { value, done: doneReading } = await reader.read()
+            //     done = doneReading
+            //     const chunkValue = decoder.decode(value)
+            //     answer = answer + chunkValue
+            //     console.log(chunkValue)
+                
+            //   }
+            //   console.log(answer)
+            //   if (index === -1) {
+            //     const newIndex = newConversation([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
+            //     setIndex(newIndex)
+            // } else {
+            //     setConversations([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
+            //   }
             
              const data = response.body;
              if (!data) {
