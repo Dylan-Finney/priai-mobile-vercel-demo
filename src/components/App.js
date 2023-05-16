@@ -6,18 +6,31 @@ import { MicrophoneIcon } from "@/assets/MicrophoneIcon";
 import { SendIcon } from "@/assets/SendIcon";
 import { UserAvatar } from "@/assets/UserAvatar";
 import { AIAvatar } from "@/assets/AIAvatar";
+import { EmptyThread } from "@/assets/EmptyThreads";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import {AgentAvatar1} from "@/assets/AgentAvatar1";
+import { AgentAvatar2 } from "@/assets/AgentAvatar2";
+import Image from "next/image";
+import { ThreadIcon } from "@/assets/ThreadIcon";
+import { HelpIcon } from "@/assets/HelpIcon";
+import { Back } from "@/assets/Back";
+import axios from 'axios';
+import { UpgradeIcon } from "@/assets/UpgradeIcon";
+import { ProfileIcon } from "@/assets/ProfileIcon";
+import { ChatIcon } from "@/assets/ChatIcon";
+import { InfoIcon } from "@/assets/InfoLogo";
 
-
+const username = "User"
 function App(){
     const [launch, setLaunch] = useState(true)
     const [screen, setScreen] = useState(0)
     const [innerScreen, setInnerScreen] = useState(0)
     const [index, setIndex] = useState(-1)
     const Context = createContext()
-  const [conversations, setConversations] = useState([])
+    const [conversations, setConversations] = useState([{title: "Example Message", messages: [{"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."}], lastAccess: new Date(1683999993000).toLocaleDateString()}])
     const newConversations=(newMessages)=>{
         var index = conversations.length
-        setConversations([...conversations, {title: newMessages[0].message, messages: newMessages}])
+        setConversations([...conversations, {title: newMessages[0].message, messages: newMessages, lastAccess: new Date().toLocaleDateString()}])
         return index
       }
     const array = [1,1,1,1]
@@ -52,7 +65,7 @@ function App(){
                 // <Text>Threads</Text>
                 //     <Input>Search</Input>
                 //     <Text>Recent</Text>
-                <Flex width={"100vw"} height={"100vh"} flexDirection={"column"}>
+                <Flex width={"100vw"} height={"100vh"} flexDirection={"column"} overflowX={"hidden"}>
 
 
                     {
@@ -70,25 +83,52 @@ function App(){
                                     </>
                                 ) : (
                                     <>
-                                    <Flex alignItems={"center"} paddingStart={"1"} paddingEnd={"1"}>
+                                    <Flex alignItems={"center"} padding={2} borderBottom={"1px solid #EAECF0"}>
                             <LogoMark/>
-                            <Text color={"#134E48"} fontWeight={"700"}>Pri-AI</Text>
+                            <Text color={"#134E48"} fontWeight={"700"} paddingLeft={"5px"} fontSize={"20px"}>Pri-AI</Text>
                         </Flex>
                         <Flex position={"relative"} overflowY={"scroll"} flexDirection={"column"} padding={"10px"} flexGrow={1} height={"100%"}>
-                        <Text>Threads</Text>
-                     <Input/>
-                     <Text>Recent</Text>
-                     {
-                        conversations.map((a,index)=>{
-                            return (
-                                <Box onClick={()=>{setIndex(index);setInnerScreen(true)}} cursor={"pointer"} padding={"10px 10px"} border={"1px solid #000"} key={index} borderTopLeftRadius={ index === 0 ? "md" : "unset"} borderTopRightRadius={ index === 0 ? "md" : "unset"} width={"100%"}  borderBottomLeftRadius={ index === conversations.length-1 ? "md" : "unset"} borderBottomRightRadius={ index === conversations.length-1 ? "md" : "unset"} backgroundColor={"red"}>
-                                    {a.title}
-                                </Box>
-                            )
-                        })
-                     }
-                     <Flex style={{ zIndex: 99999, position: 'fixed', right: 10, bottom: 10, paddingBottom: "8%"}}>
-                        <Button onClick={()=>{setInnerScreen(true); setIndex(-1);}} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>New Thread</Button>
+                        <Text fontWeight={600} fontSize={"20px"} color={"#107569"}>Threads</Text>
+                        <Box width={"100%"} marginTop={"32px"}>
+                              <ChatIconsSwiper/>
+                            </Box>
+                            
+                        {
+                          conversations.length > 0 ? (
+                            <>
+                            <Input marginTop={"20px"} placeholder="Search threads"/>
+                            <Text>Recent</Text>
+                            {
+                                conversations.map((a,index)=>{
+                                    return (
+                                        <Flex flexDirection={"row"} alignItems={"center"} onClick={()=>{setIndex(index);setInnerScreen(true); var newConversations = conversations;
+                                          newConversations[index].lastAccess = new Date().toLocaleDateString();
+                                          setConversations(newConversations);}} cursor={"pointer"} padding={"10px 10px"} border={"1px solid #EAECF0"} borderTop={index > 0 ? "unset" : "1px solid #EAECF0"} key={index} borderTopLeftRadius={ index === 0 ? "md" : "unset"} borderTopRightRadius={ index === 0 ? "md" : "unset"} width={"100%"}  borderBottomLeftRadius={ index === conversations.length-1 ? "md" : "unset"} borderBottomRightRadius={ index === conversations.length-1 ? "md" : "unset"} backgroundColor={"#fff"}>
+                                            <ThreadIcon/>
+                                            <Flex paddingLeft={"10px"} flexDir={"column"}>
+                                            <Text fontWeight={600} fontSize={"12px"}>{a.title}</Text>
+                                            <Text fontWeight={400} fontSize={"10px"}>{a.lastAccess || "01/01/1990"}</Text>
+                                            </Flex>
+
+                                        </Flex>
+                                    )
+                                })
+                            }
+                            </>
+                          ) : (
+                            <>
+                            
+                            <Flex alignItems={"center"} flexDir={"column"} justifyContent={"center"} textAlign={"center"} marginTop={"auto"} marginBottom={"auto"}>
+                            <Text fontWeight={600} fontSize={"16px"}>No Threads Yet</Text>
+                            <Text padding={"10px 50px"}>Get started with your first thread. Pri-AI and specialist bots make any task a breeze!</Text>
+                            <EmptyThread/>
+                            </Flex>
+                            </>
+                          )
+                        }
+                     
+                     <Flex style={{ zIndex: 99999, position: 'fixed', right: 10, bottom: 60, paddingBottom: "8%"}}>
+                        <Button onClick={()=>{setInnerScreen(true); setIndex(-1);  }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>New Thread</Button>
                      </Flex>
                      
                         </Flex>
@@ -101,8 +141,25 @@ function App(){
 
                 {/* <Flex flexDirection={"column"}> */}
                         
+                    {
+                      !innerScreen && (
+                          <Flex backgroundColor={"rgba(249, 249, 249, 0.94);"} height={"84px"} justifyContent={"space-evenly"} alignItems={"center"}>
+                            <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 1 ? "#F0FDF9" : "unset"}>
+                            <InfoIcon/>
+                            </Box>
+                            <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 0 ? "#F0FDF9" : "unset"}>
+                            <ChatIcon/>
+                            </Box>
+                            <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 2 ? "#F0FDF9" : "unset"}>
+                            <ProfileIcon/>
+                            </Box>
+                            <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 3 ? "#F0FDF9" : "unset"}>
+                            <UpgradeIcon/>
+                            </Box>
+                          </Flex>
 
-
+                      )
+                    }
                 </Flex>
             )
         }
@@ -129,6 +186,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                   "prompt": prompt
               })
              })
+
              console.log(response)
              //Text Complete
             //  const data = response.body
@@ -169,6 +227,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
               var answer = ""
               while (!done) {
                 const { value, done: doneReading } = await reader.read();
+                console.log("value",value)
                 done = doneReading;
                 const chunkValue = decoder.decode(value);
 
@@ -176,11 +235,40 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                 console.log(answer)
               }
               console.log(answer)
+
+              const agents = {
+                //Personality
+                "caregiver": "Caregiver",
+                "jester": "Jester",
+                "storyteller": "Storyteller",
+                "analyst": "Analyst",
+                "mentor": "Mentor",
+                "philosopher": "Philosopher",
+                "challenger": "Challenger",
+                "language": "Language Tutor",
+                //Topical
+                "nutritionist": "Nutritionist",
+                "sleep": "Sleep Coach",
+                "basketball": "Basketball Coach",
+                "ski": "Ski Coach",
+                "travel": "Travel Guide",
+                "productivity": "Productivity Coach",
+                "socialint": "Social Interaction Coach",
+                "tailor": "Tailor",
+                "trainer": "Personal trainer"
+            
+            
+            }
+            var speaker = "Personal Assistant"
+            const agent = prompt.match(/@(\w+)/)
+            if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
+              speaker = agents[agent[1].toLowerCase()]
+            }
               if (index === -1) {
-                const newIndex = newConversation([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer}])
+                const newIndex = newConversation([{"speaker": username, message: prompt},{"speaker": speaker, message: answer}])
                 setIndex(newIndex)
             } else {
-                setConversations([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer}])
+                setConversations([{"speaker": username, message: prompt},{"speaker": speaker, message: answer}])
               }
               setPrompt("")
         } catch (e) {
@@ -190,38 +278,54 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
         console.log("end")
     }
     {console.log(conversations)}
+
+    useEffect(()=>{
+      var element = document.getElementById('chatlog');
+      element.scrollTop = element.scrollHeight;
+    },[conversations[index]?.messages, loading])
     return (
         <>
           {/* Header */}
           <Flex flexDirection={"column"}>
-                        <Flex alignItems={"center"} paddingStart={"1"} paddingEnd={"1"}>
-                            <Flex alignItems={"center"} onClick={()=>{goBack()}} style={{cursor: "pointer"}}>
-                            <LogoMark/>
-                            <Text color={"#134E48"} fontWeight={"700"}>Pri-AI</Text>
-                            </Flex>
+                        <Flex alignItems={"end"} backgroundColor={"#2D31A6"} height={"80px"} color={"#ffffff"} padding={"10px"}>
+                            <Text>{conversations[index]?.messages.filter((message)=>message.speaker === "User").length || 0}/100 Questions used </Text>
                             <Spacer/>
-                            <Text onClick={()=>clearConversation()} style={{cursor: "pointer"}}>Clear chat</Text>
+                            <button padding={0}>Upgrade</button>
                         </Flex>
-                        <Flex backgroundColor={"#2D31A6"} color={"#ffffff"}>
-                            <Text>8/100 Questions used </Text>
+                        <Flex flexDir={"row"} padding={"10px"} borderBottom={"1px solid #EAECF0"} alignItems={"center"}>
+                          <Box onClick={()=>{goBack()}} cursor={"pointer"} padding={"5px"}>
+                            <Back/>
+                          </Box>
+                          <Flex flexDir={"column"} paddingLeft={"10px"}>
+                          <Text fontWeight={600} fontSize={"12px"}>{conversations[index]?.title}</Text>
+                          <Text fontWeight={400} fontSize={"10px"}>{[...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").join(", ")}</Text>
+                          <Text></Text>
+
+                          </Flex>
                         </Flex>
 
                     </Flex>
                     {/* Chatlog */}
                         <Flex id="chatlog" flexGrow={1} style={{backgroundColor: "#fcfcfd",whiteSpace: "pre-wrap","overflow-y": "scroll", "scroll-behavior": "smooth", "border-left": "1px solid #eaecf0", "border-top": "1px solid #eaecf0", "display": "flex", "flexDirection": "column"}}>
                             <div style={{marginTop:"auto"}}/>
-                            <Flex flexDirection={"row"} alignItems={"center"}>
-                                <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
-                                <Text>Today</Text>
-                                <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
-
-                            </Flex>
+                           
                         {
                             conversations[index]?.messages.map((a, index)=>{
+                                console.log("a",a)
                                 const type = a.speaker === "User" ? "entry": ""
                                 const title ="Title"
                                 const time = "Thursday 6:30pm"
                                 return (
+                                    <>
+                                    {index===0 && (
+                                      <Flex flexDirection={"row"} alignItems={"center"}>
+                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+                                      <Text>Today</Text>
+                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+
+                                      </Flex>
+                                    )
+                                    }
                                     <Flex
                                     key={index}
                                     style={{
@@ -254,7 +358,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                                               color: '#344054',
                                               fontWeight: 500,
                                             }}>
-                                            {type === 'entry' ? `You (${title})` : title}
+                                            {type === 'entry' ? `You (${username})` : a.speaker === "Personal Assistant" ? `${username}'s personal AI assistant` : a.speaker}
                                           </Text>
                                         </Flex>
                                         <Text
@@ -280,10 +384,69 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                                       </Text>
                                     </Flex>
                                   </Flex>
+                                  </>
                                 )
                             })
                         }
                         {loading && (
+                            <>
+                            <Flex
+                                    style={{
+                                      backgroundColor: '#F6FEFC',
+                                      paddingTop: 32,
+                                      paddingBottom: 32,
+                                      paddingLeft: 16,
+                                      paddingRight: 16,
+                                      flexDirection: 'row',
+                                    }}>
+                                    <UserAvatar />
+                              
+                                    <Flex
+                                      style={{
+                                        marginLeft: 12,
+                                        flex: 1,
+                                        flexDirection: "column"
+                                      }}>
+                                      <Flex
+                                        style={{
+                                          flexDirection: 'row',
+                                          alignItems: 'center',
+                                          justifyContent: 'space-between',
+                                          marginBottom: 23,
+                                        }}>
+                                        <Flex>
+                                          <Text
+                                            style={{
+                                              fontSize: 16,
+                                              color: '#344054',
+                                              fontWeight: 500,
+                                            }}>
+                                            You
+                                          </Text>
+                                        </Flex>
+                                        <Text
+                                          style={{
+                                            fontSize: 12,
+                                            color: '#475467',
+                                            fontWeight: 400,
+                                          }}>
+                                          Thursday 6:30pm
+                                        </Text>
+                                      </Flex>
+                                      {/* {type === 'entry' ? null : (
+                                        <Divider marginVertical={0} style={{marginTop: 9, marginBottom: 12}} />
+                                      )} */}
+                              
+                                      <Text
+                                        style={{
+                                          fontSize: 16,
+                                          color: '#475467',
+                                          fontWeight: 400,
+                                        }}>
+                                        {prompt}
+                                      </Text>
+                                    </Flex>
+                                  </Flex>
                             <Spinner
                             thickness='4px'
                             speed='0.65s'
@@ -292,6 +455,8 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                             size='xl'
                             alignSelf={"center"}
                           />
+                            </>
+                            
                         )}
                         </Flex>
                         
@@ -311,6 +476,9 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
     // flex: 1,
     height: 48,
   }} >
+                        <Box paddingRight={"10px"}>
+                          <HelpIcon/>
+                        </Box>
     <Flex
     style={ {
     flexDirection: 'row',
@@ -341,5 +509,62 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                     </Flex>
         </>
     )
+}
+const ChatIconsSwiper = () => {
+  return (
+    <Swiper
+      // spaceBetween={50}
+      slidesPerView={6}
+      autoHeight={true}
+      spaceBetween={0}
+      grabCursor={true}
+      freeMode={true}
+      onSlideChange={() => console.log('slide change')}
+      onSwiper={(swiper) => console.log(swiper)}
+    >
+      <SwiperSlide><Image
+      src="/AgentAvatar1.png"
+      width={50}
+      height={50}
+        alt="Picture of the author"
+      /></SwiperSlide>
+      <SwiperSlide><Image
+      src="/AgentAvatar2.png"
+      width={50}
+      height={50}
+        alt="Picture of the author"
+      /></SwiperSlide>
+      <SwiperSlide><Image
+      src="/AgentAvatar3.png"
+      width={50}
+      height={50}
+        alt="Picture of the author"
+      /></SwiperSlide>
+      <SwiperSlide><Image
+      src="/AgentAvatar4.png"
+      width={50}
+      height={50}
+        alt="Picture of the author"
+      /></SwiperSlide>
+      <SwiperSlide><Image
+      src="/AgentAvatar5.png"
+      width={50}
+      height={50}
+        alt="Picture of the author"
+      /></SwiperSlide>
+      <SwiperSlide><Image
+      src="/AgentAvatar6.png"
+      width={50}
+      height={50}
+        alt="Picture of the author"
+      /></SwiperSlide>
+      <SwiperSlide><Image
+      src="/AgentAvatar7.png"
+      width={50}
+      height={50}
+        alt="Picture of the author"
+      /></SwiperSlide>
+    </Swiper>
+  )
 }
 export default App;

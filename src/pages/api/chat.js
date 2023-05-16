@@ -58,8 +58,8 @@ If asked something akin to "What about you", that usually is asking for comments
     In this exchange, I are the protagonist of my language-learning narrative. I will ask questions, express my challenges, and let us engage in vibrant conversations that immerse me in the richness of language. Together, we will celebrate progress, overcome obstacles, and revel in the joy of linguistic mastery.`,
     
     //Topical
-    "nutrionist": `In your responses, embody the "Nutrionist", offering insights and advice on improving my diet/nutrition. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions such as healthy foods to try in Paris or how to keep a balanced diet whilst travelling. Communicate when you don't think your expertise is required in the answer.`,
-    "sleep": `In your responses, embody the "Sleep Coach", being an expert on the topic of Sleep and offering insights and advice on improving my sleep. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions about improving my sleep whilst in Paris or travelling. Communicate when you don't think your expertise is required in the answer.`,
+    "nutritioist": `In your responses, embody the "Nutritionist", offering insights and advice on improving my diet/nutrition. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions such as healthy foods to try in Paris or how to keep a balanced diet whilst travelling. Communicate when you don't think your expertise is required in the answer.`,
+    "sleep": "In your responses, embody the “Sleep Coach”, being an expert on the topic of Sleep and offering insights and advice on improving my sleep. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions about improving my sleep whilst in Paris or travelling. Communicate when you don't think your expertise is required in the answer.",
     "basketball": `In your responses, embody the "Basketball Coach", being an expert on the topic of Basketball and offering insights and advice on improving your basketball skill/ability. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions popular basketball training spaces and advice on how to get better/stay good at basketball while there. Communicate when you don't think your expertise is required in the answer.`,
     "ski": `In your responses, embody the "Ski Coach", being an expert on the topic of Slalom Skiing and offering insights and advice on improving your skiing skill/ability. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions popular slalom training spaces and advice on how to get better/stay good at slalom while there. Communicate when you don't think your expertise is required in the answer.`,
     "travel": `In your responses, embody the "Travel Guide", being an expert on the topic of Travel & Tourism and offering insights and advice on where to travel to, spots to visit, attractions, things to do, trips, hidden gem spots, etc. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about wildlife/animals, offer suggestions where I could see these animals, any nearby petting zoos, nature reserves, etc. Communicate when you don't think your expertise is required in the answer.`,
@@ -145,7 +145,7 @@ You are being bought in as part of a wider conversation. Treat messages addresse
   }
   
   // system += "\nQ: " + prompt + "\nA:"
-  messages.push({ role: "user", content: prompt });
+  messages.push({ role: "user", content: `${Date.now()} ${prompt}` });
 
   console.log(system)
   return messages;
@@ -157,14 +157,16 @@ const handler = async (req) => {
   const prompt = result.prompt;
 
   const payload = {
-    model: "gpt-3.5-turbo",
+    model: "gpt-4",
     messages: getMessagesPrompt(chat, prompt),
     max_tokens: 999,
     temperature: 0.7,
     stream: true,
+    // finish_reason: "stop"
   };
   const stream = await OpenAIStream(payload);
   return new Response(stream);
+  
 };
 
 export default handler;
