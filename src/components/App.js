@@ -19,15 +19,25 @@ import { UpgradeIcon } from "@/assets/UpgradeIcon";
 import { ProfileIcon } from "@/assets/ProfileIcon";
 import { ChatIcon } from "@/assets/ChatIcon";
 import { InfoIcon } from "@/assets/InfoLogo";
+import { KebabIcon } from "@/assets/KebabIcon";
+import { RenameIcon } from "@/assets/RenameIcon";
+import { TrashIcon } from "@/assets/TrashIcon";
+import { MentionsInput, Mention } from 'react-mentions'
 
 const username = "User"
 function App(){
-    const [launch, setLaunch] = useState(true)
+    const [launch, setLaunch] = useState(false)
     const [screen, setScreen] = useState(0)
     const [innerScreen, setInnerScreen] = useState(0)
     const [index, setIndex] = useState(-1)
     const Context = createContext()
-    const [conversations, setConversations] = useState([{title: "Example Message", messages: [{"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."}], lastAccess: new Date(1683999993000).toLocaleDateString()}])
+    const [editMode, setEditMode] = useState(false)
+    const [conversations, setConversations] = useState([
+      {title: "Example Message", messages: [{"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."}], lastAccess: new Date(1683999993000).toLocaleDateString()}
+    ])
+    
+    
+    
     const newConversations=(newMessages)=>{
         var index = conversations.length
         setConversations([...conversations, {title: newMessages[0].message, messages: newMessages, lastAccess: new Date().toLocaleDateString()}])
@@ -47,134 +57,143 @@ function App(){
     },[conversations])
     
     return (
-        <>
-        {
-            launch ? (
-                <Box overflow={"hidden"} display={"flex"} width={"100vw"} height={"100vh"} background={"linear-gradient(26.57deg, #125D56 8.33%, #107569 91.67%);"}>
-                <SlideFade  in={launch} offsetY='50vh' style={{display: "flex", alignItems: "center"}}>
-                    <Box 
-                    // transform={"translate(-50%, -50%)"}
-                    alignSelf={"center"} justifyContent={"center"} width={"100vw"} display={"flex"}>
-                        <Logo/>
-                    </Box>
-                </SlideFade>
-                
-                
-            </Box>
-            ) : (
-                // <Text>Threads</Text>
-                //     <Input>Search</Input>
-                //     <Text>Recent</Text>
-                <Flex width={"100vw"} height={"100vh"} flexDirection={"column"} overflowX={"hidden"}>
+      <Flex width={"100vw"} height={"100vh"} flexDirection={"column"} overflowX={"hidden"}>
 
 
-                    {
-                        screen === 0 && (
-                            <>
-                            {
-                                innerScreen === true ? (
-                                    <>
-                                    
-                                    <Convo   conversations={conversations} setConversations={(newMessages)=>{
-      var newConversations = conversations
-      newConversations[index].messages = newConversations[index].messages.concat(newMessages)
-      setConversations(newConversations)
-    }} index={index} setIndex={(newIndex)=>{setIndex(newIndex)}} clearConversation={()=>{setConversations(conversations.filter((data, idx) => idx !== index )); setIndex(-1);}} newConversation={(newMessages)=>{return newConversations(newMessages)}} goBack={()=>{setInnerScreen(false)}}/>
-                                    </>
-                                ) : (
-                                    <>
-                                    <Flex alignItems={"center"} padding={2} borderBottom={"1px solid #EAECF0"}>
-                            <LogoMark/>
-                            <Text color={"#134E48"} fontWeight={"700"} paddingLeft={"5px"} fontSize={"20px"}>Pri-AI</Text>
-                        </Flex>
-                        <Flex position={"relative"} overflowY={"scroll"} flexDirection={"column"} padding={"10px"} flexGrow={1} height={"100%"}>
-                        <Text fontWeight={600} fontSize={"20px"} color={"#107569"}>Threads</Text>
-                        <Box width={"100%"} marginTop={"32px"}>
-                              <ChatIconsSwiper/>
-                            </Box>
-                            
-                        {
-                          conversations.length > 0 ? (
-                            <>
-                            <Input marginTop={"20px"} placeholder="Search threads"/>
-                            <Text>Recent</Text>
-                            {
-                                conversations.map((a,index)=>{
-                                    return (
-                                        <Flex flexDirection={"row"} alignItems={"center"} onClick={()=>{setIndex(index);setInnerScreen(true); var newConversations = conversations;
-                                          newConversations[index].lastAccess = new Date().toLocaleDateString();
-                                          setConversations(newConversations);}} cursor={"pointer"} padding={"10px 10px"} border={"1px solid #EAECF0"} borderTop={index > 0 ? "unset" : "1px solid #EAECF0"} key={index} borderTopLeftRadius={ index === 0 ? "md" : "unset"} borderTopRightRadius={ index === 0 ? "md" : "unset"} width={"100%"}  borderBottomLeftRadius={ index === conversations.length-1 ? "md" : "unset"} borderBottomRightRadius={ index === conversations.length-1 ? "md" : "unset"} backgroundColor={"#fff"}>
-                                            <ThreadIcon/>
-                                            <Flex paddingLeft={"10px"} flexDir={"column"}>
-                                            <Text fontWeight={600} fontSize={"12px"}>{a.title}</Text>
-                                            <Text fontWeight={400} fontSize={"10px"}>{a.lastAccess || "01/01/1990"}</Text>
-                                            </Flex>
-
-                                        </Flex>
-                                    )
-                                })
-                            }
-                            </>
-                          ) : (
-                            <>
-                            
-                            <Flex alignItems={"center"} flexDir={"column"} justifyContent={"center"} textAlign={"center"} marginTop={"auto"} marginBottom={"auto"}>
-                            <Text fontWeight={600} fontSize={"16px"}>No Threads Yet</Text>
-                            <Text padding={"10px 50px"}>Get started with your first thread. Pri-AI and specialist bots make any task a breeze!</Text>
-                            <EmptyThread/>
-                            </Flex>
-                            </>
-                          )
-                        }
-                     
-                     <Flex style={{ zIndex: 99999, position: 'fixed', right: 10, bottom: 60, paddingBottom: "8%"}}>
-                        <Button onClick={()=>{setInnerScreen(true); setIndex(-1);  }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>New Thread</Button>
-                     </Flex>
-                     
-                        </Flex>
-                                    </>
-                                )
-                            }
-                            </>
-                        )
-                    }
-
-                {/* <Flex flexDirection={"column"}> */}
-                        
-                    {
-                      !innerScreen && (
-                          <Flex backgroundColor={"rgba(249, 249, 249, 0.94);"} height={"84px"} justifyContent={"space-evenly"} alignItems={"center"}>
-                            <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 1 ? "#F0FDF9" : "unset"}>
-                            <InfoIcon/>
-                            </Box>
-                            <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 0 ? "#F0FDF9" : "unset"}>
-                            <ChatIcon/>
-                            </Box>
-                            <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 2 ? "#F0FDF9" : "unset"}>
-                            <ProfileIcon/>
-                            </Box>
-                            <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 3 ? "#F0FDF9" : "unset"}>
-                            <UpgradeIcon/>
-                            </Box>
-                          </Flex>
-
+      {
+          screen === 0 && (
+              <>
+              {
+                  innerScreen === true ? (
+                      <>
+                      
+                      <Convo   conversations={conversations} setConversations={(newMessages)=>{
+var newConversations = conversations
+newConversations[index].messages = newConversations[index].messages.concat(newMessages)
+setConversations(newConversations)
+}} index={index} setIndex={(newIndex)=>{setIndex(newIndex)}} clearConversation={()=>{setConversations(conversations.filter((data, idx) => idx !== index )); setIndex(-1);}} newConversation={(newMessages)=>{return newConversations(newMessages)}} goBack={()=>{setInnerScreen(false)}}/>
+                      </>
+                  ) : (
+                      <>
+                      <Flex alignItems={"center"} padding={2} borderBottom={"1px solid #EAECF0"}>
+              <LogoMark/>
+              <Text color={"#134E48"} fontWeight={"700"} paddingLeft={"5px"} fontSize={"20px"}>Pri-AI</Text>
+          </Flex>
+          <Flex position={"relative"} overflowY={"scroll"} flexDirection={"column"} padding={"10px"} flexGrow={1} height={"100%"}>
+          <Flex flexDirection={"row"}>
+          <Text fontWeight={600} fontSize={"20px"} color={"#107569"}>Threads</Text>
+          <Spacer/>
+          <Text cursor={"pointer"} onClick={()=>{setEditMode(!editMode)}} fontWeight={600} fontSize={"20px"} color={"#107569"}>Edit</Text>
+          </Flex>
+          <Box width={"100%"} marginTop={"32px"}>
+                <ChatIconsSwiper/>
+              </Box>
+              
+          {
+            conversations.length > 0 ? (
+              <>
+              <Input marginTop={"20px"} placeholder="Search threads"/>
+              <Text>Recent</Text>
+              {
+                  conversations.map((a,index)=>{
+                      return (
+                          <Thread key={index} index={index} message={a} onClick={()=>{setIndex(index);setInnerScreen(true); var newConversations = conversations;
+                            newConversations[index].lastAccess = new Date().toLocaleDateString();
+                            setConversations(newConversations);}} last={index === conversations.length-1} deleteFunc={()=>{setConversations(conversations.filter((data, idx) => idx !== index ))}} rename={(newTitle)=>{var newConversations = conversations;
+                              newConversations[index].title = newTitle;
+                              setConversations(newConversations);}}/>
                       )
-                    }
-                </Flex>
+                  })
+              }
+              </>
+            ) : (
+              <>
+              
+              <Flex alignItems={"center"} flexDir={"column"} justifyContent={"center"} textAlign={"center"} marginTop={"auto"} marginBottom={"auto"}>
+              <Text fontWeight={600} fontSize={"16px"}>No Threads Yet</Text>
+              <Text padding={"10px 50px"}>Get started with your first thread. Pri-AI and specialist bots make any task a breeze!</Text>
+              <EmptyThread/>
+              </Flex>
+              </>
             )
-        }
+          }
+       
+       <Flex style={{ zIndex: 99999, position: 'fixed', right: 10, bottom: 60, paddingBottom: "8%"}}>
+          <Button onClick={()=>{setInnerScreen(true); setIndex(-1);  }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>New Thread</Button>
+       </Flex>
+       
+          </Flex>
+                      </>
+                  )
+              }
+              </>
+          )
+      }
 
-        </>
+  {/* <Flex flexDirection={"column"}> */}
+          
+      {/* {
+        !innerScreen && (
+            <Flex backgroundColor={"rgba(249, 249, 249, 0.94);"} height={"84px"} justifyContent={"space-evenly"} alignItems={"center"}>
+              <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 1 ? "#F0FDF9" : "unset"}>
+              <InfoIcon/>
+              </Box>
+              <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 0 ? "#F0FDF9" : "unset"}>
+              <ChatIcon/>
+              </Box>
+              <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 2 ? "#F0FDF9" : "unset"}>
+              <ProfileIcon/>
+              </Box>
+              <Box padding={"8px"} borderRadius={"8px"} backgroundColor={screen === 3 ? "#F0FDF9" : "unset"}>
+              <UpgradeIcon/>
+              </Box>
+            </Flex>
+
+        )
+      } */}
+  </Flex>
         
     )
 }
 const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversations, setConversations, clearConversation}) => {
     const [prompt, setPrompt] = useState("")
     const [loading, setLoading] = useState(false)
+    const pattern = /@\[(.*?)\]\((-?\d+)\)/g;
+
+    const [value, setValue] = useState('');
+
+  const handleInputChange = (event, newValue) => {
+    setPrompt(newValue);
+  };
+
+    const agents = {
+      //Personality
+      "caregiver": "Caregiver",
+      "jester": "Jester",
+      "storyteller": "Storyteller",
+      "analyst": "Analyst",
+      "mentor": "Mentor",
+      "philosopher": "Philosopher",
+      "challenger": "Challenger",
+      "language": "Language Tutor",
+      //Topical
+      "nutritionist": "Nutritionist",
+      "sleep": "Sleep Coach",
+      "basketball": "Basketball Coach",
+      "ski": "Ski Coach",
+      "travel": "Travel Guide",
+      "productivity": "Productivity Coach",
+      "socialint": "Social Interaction Coach",
+      "tailor": "Tailor",
+      "trainer": "Personal trainer"
+  
+  
+  }
 
     const submit = async () => {
         console.log("test")
         setLoading(true)
+        const promptProcessed = prompt.replace(pattern, "@$1")
         try {
             const response = await fetch("/api/chat", {
                 method: "POST",
@@ -183,7 +202,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                 },
                 body: JSON.stringify({
                   "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0) || [],
-                  "prompt": prompt
+                  "prompt": promptProcessed
               })
              })
 
@@ -236,39 +255,17 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
               }
               console.log(answer)
 
-              const agents = {
-                //Personality
-                "caregiver": "Caregiver",
-                "jester": "Jester",
-                "storyteller": "Storyteller",
-                "analyst": "Analyst",
-                "mentor": "Mentor",
-                "philosopher": "Philosopher",
-                "challenger": "Challenger",
-                "language": "Language Tutor",
-                //Topical
-                "nutritionist": "Nutritionist",
-                "sleep": "Sleep Coach",
-                "basketball": "Basketball Coach",
-                "ski": "Ski Coach",
-                "travel": "Travel Guide",
-                "productivity": "Productivity Coach",
-                "socialint": "Social Interaction Coach",
-                "tailor": "Tailor",
-                "trainer": "Personal trainer"
-            
-            
-            }
+              
             var speaker = "Personal Assistant"
             const agent = prompt.match(/@(\w+)/)
             if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
               speaker = agents[agent[1].toLowerCase()]
             }
               if (index === -1) {
-                const newIndex = newConversation([{"speaker": username, message: prompt},{"speaker": speaker, message: answer}])
+                const newIndex = newConversation([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: answer}])
                 setIndex(newIndex)
             } else {
-                setConversations([{"speaker": username, message: prompt},{"speaker": speaker, message: answer}])
+                setConversations([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: answer}])
               }
               setPrompt("")
         } catch (e) {
@@ -287,11 +284,11 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
         <>
           {/* Header */}
           <Flex flexDirection={"column"}>
-                        <Flex alignItems={"end"} backgroundColor={"#2D31A6"} height={"80px"} color={"#ffffff"} padding={"10px"}>
+                        {/* <Flex alignItems={"end"} backgroundColor={"#2D31A6"} height={"80px"} color={"#ffffff"} padding={"10px"}>
                             <Text>{conversations[index]?.messages.filter((message)=>message.speaker === "User").length || 0}/100 Questions used </Text>
                             <Spacer/>
                             <button padding={0}>Upgrade</button>
-                        </Flex>
+                        </Flex> */}
                         <Flex flexDir={"row"} padding={"10px"} borderBottom={"1px solid #EAECF0"} alignItems={"center"}>
                           <Box onClick={()=>{goBack()}} cursor={"pointer"} padding={"5px"}>
                             <Back/>
@@ -443,7 +440,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                                           color: '#475467',
                                           fontWeight: 400,
                                         }}>
-                                        {prompt}
+                                        {prompt.replace(pattern, "@$1")}
                                       </Text>
                                     </Flex>
                                   </Flex>
@@ -491,12 +488,45 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
     borderRadius: 10,
   }}
     >
-                        <Input style={{flex: 1,
+      {console.log(value)}
+  <MentionsInput allowSuggestionsAboveCursor={true} value={prompt} onChange={handleInputChange} placeholder="How did I sleep last night?" disabled={loading} singleLine style={{display: "inline-flex", input: {paddingLeft: "10px"},highlighter: {paddingLeft: "10px", outline: "none", textDecoration: "none"}, flex: 1, fontSize: 16, color: 'inherit', suggestions: {
+    list: {
+      overflowY: "auto",
+      height: "40vh"
+    }
+  }}}>
+        <Mention
+          trigger="@"
+          displayTransform={(a, display) => `@${display}`}
+          data={Object.keys(agents).map((data, i)=>{
+            return {
+              id: i,
+              display: data
+            }
+          })}
+          style={{
+            backgroundColor: '#107896',
+          }}
+          markup={"@[__display__](__id__)"}
+        />
+        <Mention
+          trigger="#"
+          displayTransform={(a, display) => `#${display}`}
+          data={[]}
+          regex={/#(\S+)/}
+          style={{
+            backgroundColor: '#9A2617',
+            textShadow: ""
+          }}
+          markup="#__id__"
+        />
+      </MentionsInput>
+                        {/* <Input style={{flex: 1,
     fontSize: 16,
     color: '#333',}} 
     isDisabled={loading}
     value={prompt} onChange={(e)=>{setPrompt(e.target.value)}} paddingLeft={"8px"} placeholder="How did I sleep last night?">
-                        </Input>
+                        </Input> */}
                         <Flex style={{flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 4}}>
@@ -566,5 +596,57 @@ const ChatIconsSwiper = () => {
       /></SwiperSlide>
     </Swiper>
   )
+}
+const Thread = ({
+  onClick, 
+  index,
+  message, 
+  deleteFunc, 
+  rename,
+  last}) => {
+  const [showOptions, setShowOptions] = useState(false)
+  const [renameOption, setRenameOption] = useState(false)
+  const [save, setSave] = useState(false)
+  const [tempName, setTempName] = useState(message.title)
+  return (
+    <Flex id="thread" flexDirection={"row"} alignItems={"center"} onClick={()=>{onClick()}} cursor={"pointer"} padding={"10px 10px"} border={"1px solid #EAECF0"} borderTop={index > 0 ? "unset" : "1px solid #EAECF0"} key={index} borderTopLeftRadius={ index === 0 ? "md" : "unset"} borderTopRightRadius={ index === 0 ? "md" : "unset"} width={"100%"}  borderBottomLeftRadius={ last ? "md" : "unset"} borderBottomRightRadius={ last ? "md" : "unset"} backgroundColor={showOptions ? "#f6f7f8":"#fff"}>
+        <ThreadIcon/>
+        <Flex paddingLeft={"10px"} flexDir={"column"}>
+          {
+            renameOption ? (
+              <Input onBlur={()=>{if (save){rename(tempName);setTempName(message.title);} else {setTempName(message.title);}setRenameOption(false)}} autoFocus onClick={(event)=>{event.stopPropagation()}} fontWeight={600} fontSize={"12px"} value={tempName} onChange={(event)=>{setTempName(event.target.value)}}/>
+
+            ) : (
+              <Text fontWeight={600} fontSize={"12px"}>{message.title}</Text>
+
+            )
+          }
+        <Text fontWeight={400} fontSize={"10px"}>{message.lastAccess || "01/01/1990"}</Text>
+        </Flex>
+        <Spacer/>
+        {
+          showOptions && (
+            <>
+            <Flex gap={"5px"}>
+              <Box onMouseDown={()=>{
+                if (renameOption){
+                  setSave(true)
+                }
+              }} padding={"5px"} onClick={(event)=>{event.stopPropagation();if (!save){setRenameOption(true)} else {setSave(false)}}}>
+                <RenameIcon/>
+              </Box>
+              <Box padding={"5px"} onClick={(event)=>{event.stopPropagation();deleteFunc()}}>
+                <TrashIcon/>
+              </Box>
+            </Flex>
+            </>
+          )
+        }
+        <Box id="" width={"30px"} onClick={(event)=>{event.stopPropagation();setShowOptions(!showOptions)}}>
+        <KebabIcon/>
+        </Box>
+
+    </Flex>
+)
 }
 export default App;
