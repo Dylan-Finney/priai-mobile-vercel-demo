@@ -82,8 +82,8 @@ setConversations(newConversations)
           <Flex position={"relative"} overflowY={"scroll"} flexDirection={"column"} padding={"10px"} flexGrow={1} height={"100%"}>
           <Flex flexDirection={"row"}>
           <Text fontWeight={600} fontSize={"20px"} color={"#107569"}>Threads</Text>
-          <Spacer/>
-          <Text cursor={"pointer"} onClick={()=>{setEditMode(!editMode)}} fontWeight={600} fontSize={"20px"} color={"#107569"}>Edit</Text>
+          {/* <Spacer/>
+          <Text cursor={"pointer"} onClick={()=>{setEditMode(!editMode)}} fontWeight={600} fontSize={"20px"} color={"#107569"}>Edit</Text> */}
           </Flex>
           <Box width={"100%"} marginTop={"32px"}>
                 <ChatIconsSwiper/>
