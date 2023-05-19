@@ -2,11 +2,11 @@
 import { Configuration, OpenAIApi } from "openai";
 import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// const configuration = new Configuration({
+//   apiKey: process.env.STAGE === "dev" ? process.env.OPENAI_API_KEY_DEV : process.env.OPENAI_API_KEY_PROD,
+// });
 
-const openai = new OpenAIApi(configuration);
+// const openai = new OpenAIApi(configuration);
 
 export const config = {
   runtime: "edge",
@@ -60,9 +60,9 @@ If this is the first message, respond with a greeting.`
     
     //Topical
     "nutritionist": `In your responses, embody the "Nutritionist", offering insights and advice on improving my diet/nutrition. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions such as healthy foods to try in Paris or how to keep a balanced diet whilst travelling. Communicate when you don't think your expertise is required in the answer.`,
-    "sleep": "In your responses, embody the “Sleep Coach”, being an expert on the topic of Sleep and offering insights and advice on improving my sleep. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions about improving my sleep whilst in Paris or travelling. Communicate when you don't think your expertise is required in the answer.",
-    "basketball": `In your responses, embody the "Basketball Coach", being an expert on the topic of Basketball and offering insights and advice on improving your basketball skill/ability. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions popular basketball training spaces and advice on how to get better/stay good at basketball while there. Communicate when you don't think your expertise is required in the answer.`,
-    "ski": `In your responses, embody the "Ski Coach", being an expert on the topic of Slalom Skiing and offering insights and advice on improving your skiing skill/ability. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions popular slalom training spaces and advice on how to get better/stay good at slalom while there. Communicate when you don't think your expertise is required in the answer.`,
+    "sleepcoach": "In your responses, embody the “Sleep Coach”, being an expert on the topic of Sleep and offering insights and advice on improving my sleep. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions about improving my sleep whilst in Paris or travelling. Communicate when you don't think your expertise is required in the answer.",
+    "basketballcoach": `In your responses, embody the "Basketball Coach", being an expert on the topic of Basketball and offering insights and advice on improving your basketball skill/ability. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions popular basketball training spaces and advice on how to get better/stay good at basketball while there. Communicate when you don't think your expertise is required in the answer.`,
+    "skicoach": `In your responses, embody the "Ski Coach", being an expert on the topic of Slalom Skiing and offering insights and advice on improving your skiing skill/ability. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about travelling to Paris, offer suggestions popular slalom training spaces and advice on how to get better/stay good at slalom while there. Communicate when you don't think your expertise is required in the answer.`,
     "travel": `In your responses, embody the "Travel Guide", being an expert on the topic of Travel & Tourism and offering insights and advice on where to travel to, spots to visit, attractions, things to do, trips, hidden gem spots, etc. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about wildlife/animals, offer suggestions where I could see these animals, any nearby petting zoos, nature reserves, etc. Communicate when you don't think your expertise is required in the answer.`,
     "productivity": `In your responses, embody the "Productivity Coach", being an expert on the topic of Productivity and offering insights and advice on it and how to maxmize my productivity. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about Paris, offer suggestions on how I could maxmize my productivity whilst travelling there. Communicate when you don't think your expertise is required in the answer.`,
     "socialint": `In your responses, embody the "Social Interaction Coach", being an expert on the topic of Social Networking, with particular focus on physical social networking, and offering insights and advice on how to get better at it, when and where such events take place, etc. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about Paris, offer suggestions on activites that would be good for physical social networking, any events where I can physical social network, etc. Communicate when you don't think your expertise is required in the answer.`,
@@ -146,7 +146,7 @@ You are being bought in as part of a wider conversation. Treat messages addresse
   }
   
   // system += "\nQ: " + prompt + "\nA:"
-  messages.push({ role: "user", content: `${Date.now()} ${prompt}` });
+  messages.push({ role: "user", content: `${prompt}` }); //Date.now() to overcome caching?
 
   console.log(system)
   return messages;
@@ -158,15 +158,32 @@ const handler = async (req) => {
   const prompt = result.prompt;
 
   const payload = {
-    model: "gpt-4",
+    model: process.env.STAGE === "dev" ? "gpt-3.5-turbo-0301" : "gpt-4",
     messages: getMessagesPrompt(chat, prompt),
     max_tokens: 999,
     temperature: 0.7,
     stream: true,
     // finish_reason: "stop"
   };
+  console.log(payload)
+  // console.log( configuration)
+
   const stream = await OpenAIStream(payload);
-  return new Response(stream);
+  console.log(stream.status)
+  if (stream.status > 399){
+    return new Response(
+      JSON.stringify(stream),
+      {
+        status: 500,
+        headers: {
+          'content-type': 'application/json',
+        },
+      },
+    );
+  } else {
+    return new Response(stream);
+  }
+  
   
 };
 

@@ -1,4 +1,5 @@
-import { Box, Button, Flex, Input, SlideFade, Spacer, Spinner, Text } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Input, SlideFade, Spacer, Spinner, Text, useDisclosure } from "@chakra-ui/react";
+import { motion, PanInfo } from 'framer-motion';
 import Logo from "../assets/logo"
 import LogoMark from "../assets/logomark";
 import { createContext, useEffect, useState } from "react";
@@ -23,8 +24,43 @@ import { KebabIcon } from "@/assets/KebabIcon";
 import { RenameIcon } from "@/assets/RenameIcon";
 import { TrashIcon } from "@/assets/TrashIcon";
 import { MentionsInput, Mention } from 'react-mentions'
+import { Error } from "@/assets/Error";
+import { Retry } from "@/assets/Retry";
 
 const username = "User"
+
+const agentDetails = [
+  {
+    "title": "Heierling",
+    "url": "AgentSpecialist.png",
+    "description": "Get detailed breakdowns and suggestions for every run.",
+    "call": "SkiCoach"
+  },
+  {
+    "title": "Sleep lab",
+    "url": "AgentSpecialist.png",
+    "description": "Understand your sleep profile and create plans to maximize your sleep health ",
+    "call": "SleepCoach"
+  },
+  {
+    "title": "Game 6",
+    "url": "AgentSpecialist.png",
+    "description": "A coach in your pocket. Training and game day analysis help you perform your best every time.",
+    "call": "BasketballCoach"
+  },
+  {
+    "title": "NourishWell",
+    "url": "AgentSpecialist.png",
+    "description": "Get detailed breakdowns and suggestions for every meal.",
+    "call": "Nutritionist"
+  },
+  {
+    "title": "Opti-Fit",
+    "url": "AgentSpecialist.png",
+    "description": "Plan and analyze your workouts.",
+    "call": "Trainer"
+  }
+]
 function App(){
     const [launch, setLaunch] = useState(false)
     const [screen, setScreen] = useState(0)
@@ -32,8 +68,38 @@ function App(){
     const [index, setIndex] = useState(-1)
     const Context = createContext()
     const [editMode, setEditMode] = useState(false)
+    const [threadFilter, setThreadFilter] = useState("")
     const [conversations, setConversations] = useState([
-      {title: "Example Message", messages: [{"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."}], lastAccess: new Date(1683999993000).toLocaleDateString()}
+      {title: "Example Message", messages: [
+        {"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."},
+        {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Personal Assistant", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."}
+      ], lastAccess: new Date(1683999993000).toLocaleDateString()},
+      {title: "Example Errors", messages: [
+        {
+          "speaker": "User",
+          "message": "What is the capital of Japan?"
+        },
+        {
+          "speaker": "Personal Assistant",
+          "message": "Pri-AI encountered the following error:",
+          "error": {
+            "status": 401,
+            "statusText": "Unauthorized"
+          }
+        },{
+          "speaker": "User",
+          "message": "What is the capital of France?"
+        },
+        {
+          "speaker": "Personal Assistant",
+          "message": "Pri-AI encountered the following error:",
+          "error": {
+            "status": 401,
+            "statusText": "Unauthorized"
+          }
+        }
+      ], lastAccess: new Date(1683999993000).toLocaleDateString()},
+      
     ])
     
     
@@ -67,11 +133,7 @@ function App(){
                   innerScreen === true ? (
                       <>
                       
-                      <Convo   conversations={conversations} setConversations={(newMessages)=>{
-var newConversations = conversations
-newConversations[index].messages = newConversations[index].messages.concat(newMessages)
-setConversations(newConversations)
-}} index={index} setIndex={(newIndex)=>{setIndex(newIndex)}} clearConversation={()=>{setConversations(conversations.filter((data, idx) => idx !== index )); setIndex(-1);}} newConversation={(newMessages)=>{return newConversations(newMessages)}} goBack={()=>{setInnerScreen(false)}}/>
+                      <Convo  conversations={conversations} setConversations={(convoCopy)=>{setConversations(convoCopy)}}  index={index} setIndex={(newIndex)=>{setIndex(newIndex)}} clearConversation={()=>{setConversations(conversations.filter((data, idx) => idx !== index )); setIndex(-1);}} newConversation={(newMessages)=>{return newConversations(newMessages)}} goBack={()=>{setInnerScreen(false)}}/>
                       </>
                   ) : (
                       <>
@@ -88,14 +150,19 @@ setConversations(newConversations)
           <Box width={"100%"} marginTop={"32px"}>
                 <ChatIconsSwiper/>
               </Box>
-              
           {
             conversations.length > 0 ? (
               <>
-              <Input marginTop={"20px"} placeholder="Search threads"/>
+              <Input marginTop={"20px"} placeholder="Search threads" value={threadFilter} onChange={(e)=>{setThreadFilter(e.target.value)}}/>
               <Text>Recent</Text>
               {
-                  conversations.map((a,index)=>{
+                  conversations.filter((conversation)=>{
+                    if (conversation.title.toLowerCase().includes(threadFilter.toLowerCase())){
+                      return true
+                    } else {
+                      return false
+                    }
+                  }).map((a,index)=>{
                       return (
                           <Thread key={index} index={index} message={a} onClick={()=>{setIndex(index);setInnerScreen(true); var newConversations = conversations;
                             newConversations[index].lastAccess = new Date().toLocaleDateString();
@@ -155,14 +222,31 @@ setConversations(newConversations)
         
     )
 }
-const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversations, setConversations, clearConversation}) => {
+const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversations, setConversations, clearConversation, retryExchange}) => {
     const [prompt, setPrompt] = useState("")
     const [loading, setLoading] = useState(false)
+    const { isOpen, onOpen, onClose } = useDisclosure()
+
+    
+
+    const [drawerTab, setDrawerTab] = useState(0)
     const pattern = /@\[(.*?)\]\((-?\d+)\)/g;
+
 
     const [value, setValue] = useState('');
 
+    const swipeConfidenceThreshold = 5000;
+  const swipePower = (offset, velocity) => Math.abs(offset) * velocity;
+
+  const onDrag = async (e, info) => {
+    const { offset, velocity } = info;
+    const swipe = swipePower(offset.y, velocity.y);
+    if (offset.y > 0 && swipe > swipeConfidenceThreshold) onClose();
+
+  };
+
   const handleInputChange = (event, newValue) => {
+
     setPrompt(newValue);
   };
 
@@ -178,9 +262,9 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
       "language": "Language Tutor",
       //Topical
       "nutritionist": "Nutritionist",
-      "sleep": "Sleep Coach",
-      "basketball": "Basketball Coach",
-      "ski": "Ski Coach",
+      "sleepcoach": "Sleep Coach",
+      "basketballcoach": "Basketball Coach",
+      "skicoach": "Ski Coach",
       "travel": "Travel Guide",
       "productivity": "Productivity Coach",
       "socialint": "Social Interaction Coach",
@@ -190,89 +274,235 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
   
   }
 
-    const submit = async () => {
+    const submit = async (retryIndex = null) => {
         console.log("test")
-        setLoading(true)
-        const promptProcessed = prompt.replace(pattern, "@$1")
-        try {
-            const response = await fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0) || [],
-                  "prompt": promptProcessed
-              })
-             })
-
-             console.log(response)
-             //Text Complete
-            //  const data = response.body
-            //   if (!data) {
-            //     return
-            //   }
-            //   const reader = data.getReader()
-            //   const decoder = new TextDecoder()
-            //   let done = false
-            //   var answer = ""
-          
-            //   // const responseReceived = Date.now()
-            //   while (!done) {
-            //     const { value, done: doneReading } = await reader.read()
-            //     done = doneReading
-            //     const chunkValue = decoder.decode(value)
-            //     answer = answer + chunkValue
-            //     console.log(chunkValue)
-                
-            //   }
-            //   console.log(answer)
-            //   if (index === -1) {
-            //     const newIndex = newConversation([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
-            //     setIndex(newIndex)
-            // } else {
-            //     setConversations([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
-            //   }
+        
+        // if (retryIndex) {
+        //   setLoading(retryIndex)
+        //   const promptProcessed = prompt.replace(pattern, "@$1")
+        //   try {
+        //       const response = await fetch("/api/chat", {
+        //           method: "POST",
+        //           headers: {
+        //             "Content-Type": "application/json",
+        //           },
+        //           body: JSON.stringify({
+        //             "chat": conversations[index]?.messages.slice(Math.max(retryIndex-11, 0), retryIndex - 1) || [],
+        //             "prompt": conversations[index]?.messages[retryIndex-1].message
+        //         })
+        //        })
+  
+  
+        //        console.log(response)
+        //        //Text Complete
+        //       //  const data = response.body
+        //       //   if (!data) {
+        //       //     return
+        //       //   }
+        //       //   const reader = data.getReader()
+        //       //   const decoder = new TextDecoder()
+        //       //   let done = false
+        //       //   var answer = ""
             
-             const data = response.body;
-             if (!data) {
-               return;
-             }
-         
-             const reader = data.getReader();
-             const decoder = new TextDecoder();
-             let done = false;
-         
-              var answer = ""
-              while (!done) {
-                const { value, done: doneReading } = await reader.read();
-                console.log("value",value)
-                done = doneReading;
-                const chunkValue = decoder.decode(value);
-
-                answer = answer + chunkValue
-                console.log(answer)
-              }
-              console.log(answer)
-
+        //       //   // const responseReceived = Date.now()
+        //       //   while (!done) {
+        //       //     const { value, done: doneReading } = await reader.read()
+        //       //     done = doneReading
+        //       //     const chunkValue = decoder.decode(value)
+        //       //     answer = answer + chunkValue
+        //       //     console.log(chunkValue)
+                  
+        //       //   }
+        //       //   console.log(answer)
+        //       //   if (index === -1) {
+        //       //     const newIndex = newConversation([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
+        //       //     setIndex(newIndex)
+        //       // } else {
+        //       //     setConversations([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
+        //       //   }
               
-            var speaker = "Personal Assistant"
-            const agent = prompt.match(/@(\w+)/)
-            if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
-              speaker = agents[agent[1].toLowerCase()]
-            }
-              if (index === -1) {
-                const newIndex = newConversation([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: answer}])
-                setIndex(newIndex)
-            } else {
-                setConversations([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: answer}])
+        //        const data = response.body;
+        //        console.log("data",data)
+        //        if (!data) {
+        //          return;
+        //        }
+           
+        //        const reader = data.getReader();
+        //        const decoder = new TextDecoder();
+        //        let done = false;
+           
+        //         var answer = ""
+        //         while (!done) {
+        //           const { value, done: doneReading } = await reader.read();
+        //           console.log("value",value)
+        //           done = doneReading;
+        //           const chunkValue = decoder.decode(value);
+  
+        //           answer = answer + chunkValue
+        //           console.log(answer)
+        //         }
+        //         if (response.status > 399) throw JSON.parse(answer)
+        //         console.log(answer)
+  
+                
+        //       var speaker = "Personal Assistant"
+        //       const agent = promptProcessed.match(/@(\w+)/)
+  
+  
+        //       if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
+        //         speaker = agents[agent[1].toLowerCase()]
+        //       }
+        //       var conversationCopy = conversations 
+        //       conversationCopy[index].messages[retryIndex].message = answer
+        //       setConversations(conversationCopy)
+        //   } catch (e) {
+        //       console.error(e)
+        //       var speaker = "Personal Assistant"
+        //       const agent = promptProcessed.match(/@(\w+)/)
+  
+  
+        //       if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
+        //         speaker = agents[agent[1].toLowerCase()]
+        //       }
+        //       var conversationCopy = conversations 
+        //       conversationCopy[index].messages[retryIndex].message = answer
+        //       conversationCopy[index].messages[retryIndex].error = e
+
+        //       setConversations(conversationCopy)
+        //   }
+        //   setLoading(false)
+        //   console.log("end")
+        // } else {
+          setLoading(true)
+          
+          var promptProcessed
+          if (retryIndex === true){
+            promptProcessed = conversations[index]?.messages[conversations[index]?.messages.length-2].message
+            setPrompt(promptProcessed)
+            var tempConversations = conversations
+            tempConversations[index].messages = tempConversations[index].messages.slice(0,-2)
+            setConversations(tempConversations)
+          } else {
+            promptProcessed = prompt.replace(pattern, "@$1")
+          }
+          
+
+          try {
+              const response = await fetch("/api/chat", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    // "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - (retryIndex === true ? 14 : 12) : 0,retryIndex === true ? conversations[index]?.messages.length-2 : undefined ) || [],
+                    "chat": conversations[index]?.messages.filter((message, messageIndex)=>{
+                      if (conversations[index]?.messages[messageIndex].error){
+                        return false
+                      }
+                      if (messageIndex === conversations[index]?.messages.length - 1){
+                        return true
+                      } 
+                      if (conversations[index]?.messages[messageIndex+1].error || conversations[index]?.messages[messageIndex].error ) {
+                        return false
+                      } else {
+                        return true
+                      }
+                    }).slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0 ) || [],
+                    "prompt": promptProcessed
+                })
+               })
+  
+  
+               console.log(response)
+               //Text Complete
+              //  const data = response.body
+              //   if (!data) {
+              //     return
+              //   }
+              //   const reader = data.getReader()
+              //   const decoder = new TextDecoder()
+              //   let done = false
+              //   var answer = ""
+            
+              //   // const responseReceived = Date.now()
+              //   while (!done) {
+              //     const { value, done: doneReading } = await reader.read()
+              //     done = doneReading
+              //     const chunkValue = decoder.decode(value)
+              //     answer = answer + chunkValue
+              //     console.log(chunkValue)
+                  
+              //   }
+              //   console.log(answer)
+              //   if (index === -1) {
+              //     const newIndex = newConversation([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
+              //     setIndex(newIndex)
+              // } else {
+              //     setConversations([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
+              //   }
+              
+               const data = response.body;
+               console.log("data",data)
+               if (!data) {
+                 return;
+               }
+           
+               const reader = data.getReader();
+               const decoder = new TextDecoder();
+               let done = false;
+           
+                var answer = ""
+                while (!done) {
+                  const { value, done: doneReading } = await reader.read();
+                  console.log("value",value)
+                  done = doneReading;
+                  const chunkValue = decoder.decode(value);
+  
+                  answer = answer + chunkValue
+                  console.log(answer)
+                }
+                if (response.status > 399) throw JSON.parse(answer)
+                console.log(answer)
+  
+                
+              var speaker = "Personal Assistant"
+              const agent = promptProcessed.match(/@(\w+)/)
+  
+  
+              if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
+                speaker = agents[agent[1].toLowerCase()]
               }
-              setPrompt("")
-        } catch (e) {
-            console.error(e)
-        }
-        setLoading(false)
-        console.log("end")
+                if (index === -1) {
+                  const newIndex = newConversation([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: answer}])
+                  setIndex(newIndex)
+              } else {
+                var conversationCopy = conversations
+                conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: answer}])
+                setConversations(conversationCopy)
+                setPrompt("")
+              }
+          } catch (e) {
+              console.error(e)
+              var speaker = "Personal Assistant"
+              const agent = promptProcessed.match(/@(\w+)/)
+  
+  
+              if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
+                speaker = agents[agent[1].toLowerCase()]
+              }
+                if (index === -1) {
+                  const newIndex = newConversation([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: "Pri-AI encountered the following error:", error: e}])
+                  setIndex(newIndex)
+              } else {
+                var conversationCopy = conversations
+                conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: "Pri-AI encountered the following error:", error: e}])
+                setConversations(conversationCopy)
+                }
+                setPrompt("")
+          }
+          setLoading(false)
+          console.log("end")
+        // }
     }
     {console.log(conversations)}
 
@@ -289,6 +519,20 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                             <Spacer/>
                             <button padding={0}>Upgrade</button>
                         </Flex> */}
+
+                        {console.log("convoTest",conversations[index]?.messages.filter((message, messageIndex)=>{
+                          if (conversations[index]?.messages[messageIndex].error){
+                            return false
+                          }
+                          if (messageIndex === conversations[index]?.messages.length - 1){
+                            return true
+                          } 
+                          if (conversations[index]?.messages[messageIndex+1].error || conversations[index]?.messages[messageIndex].error ) {
+                            return false
+                          } else {
+                            return true
+                          }
+                        }))}
                         <Flex flexDir={"row"} padding={"10px"} borderBottom={"1px solid #EAECF0"} alignItems={"center"}>
                           <Box onClick={()=>{goBack()}} cursor={"pointer"} padding={"5px"}>
                             <Back/>
@@ -304,17 +548,203 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                     </Flex>
                     {/* Chatlog */}
                         <Flex id="chatlog" flexGrow={1} style={{backgroundColor: "#fcfcfd",whiteSpace: "pre-wrap","overflow-y": "scroll", "scroll-behavior": "smooth", "border-left": "1px solid #eaecf0", "border-top": "1px solid #eaecf0", "display": "flex", "flexDirection": "column"}}>
-                            <div style={{marginTop:"auto"}}/>
+                            <div style={{marginTop:"auto", height: "100%"}}/>
                            
                         {
-                            conversations[index]?.messages.map((a, index)=>{
+                            conversations[index]?.messages.map((a, messageIndex)=>{
                                 console.log("a",a)
                                 const type = a.speaker === "User" ? "entry": ""
                                 const title ="Title"
                                 const time = "Thursday 6:30pm"
                                 return (
                                     <>
-                                    {index===0 && (
+                                    {messageIndex===0 && (
+                                      <Flex flexDirection={"row"} alignItems={"center"}>
+                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+                                      <Text>Today</Text>
+                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+
+                                      </Flex>
+                                    )}
+                                    <Flex
+                                      key={messageIndex}
+                                      style={{
+                                        paddingTop: 32,
+                                        paddingBottom: 32,
+                                        paddingLeft: 16,
+                                        paddingRight: 16,
+                                        flex: 1,
+                                        backgroundColor: type === "entry" ? "#F9FAFB" : "white",
+                                        flexDirection: "column"
+                                      }}>
+                                        {
+                                          type !== "entry" && (
+                                            <Text
+                                              style={{
+                                                fontSize: 12,
+                                                color: '#475467',
+                                                fontWeight: 400,
+                                                alignSelf: "end"
+                                              }}>
+                                              {time}
+                                            </Text>
+                                          )
+                                        }
+                                        <Flex flexDir={"row"}>
+                                          <Box>
+                                            {type === 'entry' ? <UserAvatar /> : <AIAvatar />}
+                                          </Box>
+                                        <Flex
+                                          width={"100%"}
+                                          style={{
+                                            marginLeft: "8px",
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingBottom: "4px",
+                                            justifyContent: 'space-between',
+                                            borderBottom: "1px solid #EAECF0",
+                                            alignItems:"center"
+                                          }}>
+                                          <Flex width={"100%"}>
+                                            
+                                            <Text
+                                            height={"fit-content"}
+                                              style={{
+                                                fontSize: 16,
+                                                color: '#344054',
+                                                fontWeight: 500,
+                                              }}>
+                                              {type === 'entry' ? `You (${username})` : a.speaker === "Personal Assistant" ? `${username}'s personal AI assistant` : a.speaker}
+                                            </Text>
+                                          <Spacer/>
+                                          {
+                                          type === "entry" ? (
+                                            <Text
+                                              style={{
+                                                fontSize: 12,
+                                                color: '#475467',
+                                                fontWeight: 400,
+                                                alignSelf: "end"
+                                              }}>
+                                              {time}
+                                            </Text>
+                                          ) : (
+                                            <Flex alignItems={"center"} gap={"5px"}>
+                                            {
+                                              a.speaker === "Personal Assistant" ? (
+                                                <Text
+                                                style={{
+                                                  fontSize: 10,
+                                                  color: '#107569',
+                                                  fontWeight: 500,
+                                                  backgroundColor: "#F0FDF9",
+                                                  padding: "3px",
+                                                  height: "fit-content"
+                                                }}>
+                                                PRI AI
+                                              </Text>
+                                              ) : (
+                                                <Text
+                                                style={{
+                                                  fontSize: 10,
+                                                  color: '#5925DC',
+                                                  fontWeight: 500,
+                                                  backgroundColor: "#F4F3FF",
+                                                  padding: "3px",
+                                                  height: "fit-content"
+                                                }}>
+                                                AGENT
+                                              </Text>
+                                              )
+                                            }
+                                            {a.error && (
+                                              <Error/>
+                                            )}
+                                            </Flex>
+                                          )
+                                          }
+
+                                        
+                                          </Flex>
+                                          </Flex>
+                                      </Flex>
+                                      <Flex flexDir={"column"} style={{marginLeft: 36,
+                                          marginTop: 10}}>
+                                      <Text
+                                        style={{
+                                          fontSize: 16,
+                                          color: '#475467',
+                                          fontWeight: 400,
+                                          
+                                        }}>
+                                        {a.message.split(/([@#]\w+)/).map((str, strIndex)=>{
+                                          return (
+                                            <span 
+                                            key={strIndex}
+                                            style={{
+                                              fontWeight: ["#","@"].includes(str.charAt(0)) ? "bold" : "normal"
+                                            }}
+                                            >
+                                            {str}
+                                          </span>
+                                          )
+                                        })}
+                                      </Text>
+                                      {a.error && (
+                                        <Flex marginTop={"10px"} flexDir={"row"} borderLeft={"8px solid #FECDCA"} border={"1px solid #FECDCA"} borderRadius={"8px"} style={{background: "#FFFBFA"}} >
+                                          <Flex position={"relative"} borderTopLeftRadius={"8px"} borderBottomLeftRadius={"8px"} backgroundColor={"#FECDCA"} width={"8px"}></Flex>
+                                          <Flex flexDirection={"column"} padding={"16px 10px"}>
+
+                                          <Flex flexDirection={"row"} gap={"5px"} alignItems={"center"}>
+                                            <Text fontSize={"14px"} color={"#F04438"} fontWeight={600}>
+                                              {a.error.status === 503 ? (
+                                                "No Network Connection"
+                                              ) : (
+                                                "APIConnectionError"
+                                              )}
+                                              
+                                              </Text>
+                                            <Error/>
+                                          </Flex>
+
+                                        <Text fontWeight={400} fontSize={"14px"} color={"#F04438"}>{a.error.status === 503 ? (
+                                                "You are not connected to the internet. Please reconnect and try again."
+                                              ) : (
+                                                "Issue connecting to our services. Check your network settings, proxy configuration, SSL certificates, or firewall rules."
+                                              )}</Text>
+                                        </Flex>
+
+                                        </Flex>
+                                      )}
+                                      {/* {console.log({a, messageIndex,conversations[messageIndex]?.messages.})} */}
+                                      {
+                                        a.error && !loading && a.error.status !== 503 && messageIndex === conversations[index]?.messages.length -1 && (
+                                         <Box marginTop={"10px"} onClick={()=>{submit(true)}} cursor={"pointer"}>
+                                           <Retry/>
+                                         </Box>
+                                        )
+                                      }
+                                      </Flex>
+                                    </Flex>
+                                  </>
+                                )
+                            })
+                        }
+                        {loading && (
+                            <>
+                            {console.log("retry2", {length: conversations[index]?.messages.length , index })}
+                            {
+                              index === -1 ? (
+                                      <Flex flexDirection={"row"} alignItems={"center"}>
+                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+                                      <Text>Today</Text>
+                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+
+                                      </Flex>
+                              ) : (
+                                <>
+                                  {
+                                    conversations[index].messages.length === 0 && (
                                       <Flex flexDirection={"row"} alignItems={"center"}>
                                       <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
                                       <Text>Today</Text>
@@ -322,139 +752,195 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
 
                                       </Flex>
                                     )
-                                    }
-                                    <Flex
-                                    key={index}
-                                    style={{
-                                      backgroundColor: type === 'entry' ? '#F6FEFC' : null,
-                                      paddingTop: 32,
-                                      paddingBottom: 32,
-                                      paddingLeft: 16,
-                                      paddingRight: 16,
-                                      flexDirection: 'row',
-                                    }}>
-                                    {type === 'entry' ? <UserAvatar /> : <AIAvatar />}
-                              
-                                    <Flex
-                                      style={{
-                                        marginLeft: 12,
-                                        flex: 1,
-                                        flexDirection: "column"
-                                      }}>
-                                      <Flex
-                                        style={{
-                                          flexDirection: 'row',
-                                          alignItems: 'center',
-                                          justifyContent: 'space-between',
-                                          marginBottom: type === 'entry' ? 23 : null,
-                                        }}>
-                                        <Flex>
-                                          <Text
-                                            style={{
-                                              fontSize: 16,
-                                              color: '#344054',
-                                              fontWeight: 500,
-                                            }}>
-                                            {type === 'entry' ? `You (${username})` : a.speaker === "Personal Assistant" ? `${username}'s personal AI assistant` : a.speaker}
-                                          </Text>
-                                        </Flex>
-                                        <Text
-                                          style={{
-                                            fontSize: 12,
-                                            color: '#475467',
-                                            fontWeight: 400,
-                                          }}>
-                                          {time}
-                                        </Text>
-                                      </Flex>
-                                      {/* {type === 'entry' ? null : (
-                                        <Divider marginVertical={0} style={{marginTop: 9, marginBottom: 12}} />
-                                      )} */}
-                              
-                                      <Text
-                                        style={{
-                                          fontSize: 16,
-                                          color: '#475467',
-                                          fontWeight: 400,
-                                        }}>
-                                        {a.message}
-                                      </Text>
-                                    </Flex>
-                                  </Flex>
-                                  </>
-                                )
-                            })
-                        }
-                        {loading && (
-                            <>
+                                  }
+                                </>
+                              )
+                            }
                             <Flex
-                                    style={{
-                                      backgroundColor: '#F6FEFC',
-                                      paddingTop: 32,
-                                      paddingBottom: 32,
-                                      paddingLeft: 16,
-                                      paddingRight: 16,
-                                      flexDirection: 'row',
-                                    }}>
-                                    <UserAvatar />
-                              
-                                    <Flex
                                       style={{
-                                        marginLeft: 12,
+                                        paddingTop: 32,
+                                        paddingBottom: 32,
+                                        paddingLeft: 16,
+                                        paddingRight: 16,
                                         flex: 1,
                                         flexDirection: "column"
                                       }}>
-                                      <Flex
-                                        style={{
-                                          flexDirection: 'row',
-                                          alignItems: 'center',
-                                          justifyContent: 'space-between',
-                                          marginBottom: 23,
-                                        }}>
-                                        <Flex>
+                                        
+                                        <Flex flexDir={"row"}>
+                                          <Box>
+                                            <UserAvatar />
+                                          </Box>
+                                        <Flex
+                                          width={"100%"}
+                                          style={{
+                                            marginLeft: "8px",
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingBottom: "4px",
+                                            justifyContent: 'space-between',
+                                            borderBottom: "1px solid #EAECF0",
+                                            alignItems:"center"
+                                          }}>
+                                          <Flex width={"100%"}>
+                                            
+                                            <Text
+                                            height={"fit-content"}
+                                              style={{
+                                                fontSize: 16,
+                                                color: '#344054',
+                                                fontWeight: 500,
+                                              }}>
+                                              You ({username})
+                                            </Text>
+                                          <Spacer/>
                                           <Text
-                                            style={{
-                                              fontSize: 16,
-                                              color: '#344054',
-                                              fontWeight: 500,
-                                            }}>
-                                            You
-                                          </Text>
-                                        </Flex>
-                                        <Text
                                           style={{
                                             fontSize: 12,
                                             color: '#475467',
                                             fontWeight: 400,
+                                            alignSelf: "end"
                                           }}>
                                           Thursday 6:30pm
                                         </Text>
+
+                                        
+                                          </Flex>
+                                          </Flex>
                                       </Flex>
-                                      {/* {type === 'entry' ? null : (
-                                        <Divider marginVertical={0} style={{marginTop: 9, marginBottom: 12}} />
-                                      )} */}
-                              
                                       <Text
                                         style={{
                                           fontSize: 16,
                                           color: '#475467',
                                           fontWeight: 400,
+                                          marginLeft: 36,
+                                          marginTop: 10
                                         }}>
-                                        {prompt.replace(pattern, "@$1")}
+                                        {prompt.replace(pattern, "@$1").split(/([@#]\w+)/).map((str, strIndex)=>{
+                                          return (
+                                            <span 
+                                            key={strIndex}
+                                            style={{
+                                              fontWeight: ["#","@"].includes(str.charAt(0)) ? "bold" : "normal"
+                                            }}
+                                            >
+                                            {str}
+                                          </span>
+                                          )
+                                        })}
                                       </Text>
+                                      
                                     </Flex>
-                                  </Flex>
-                            <Spinner
-                            thickness='4px'
-                            speed='0.65s'
-                            emptyColor='gray.200'
-                            color='blue.500'
-                            size='xl'
-                            alignSelf={"center"}
-                          />
+                                    <Flex
+                                      style={{
+                                        paddingTop: 32,
+                                        paddingBottom: 32,
+                                        paddingLeft: 16,
+                                        paddingRight: 16,
+                                        flex: 1,
+                                        flexDirection: "column"
+                                      }}>
+                                        <Text
+                                          style={{
+                                            fontSize: 12,
+                                            color: '#475467',
+                                            fontWeight: 400,
+                                            alignSelf: "end"
+                                          }}>
+                                          Thursday 6:30pm
+                                        </Text>
+                                        <Flex flexDir={"row"}>
+                                          <Box>
+                                            <AIAvatar />
+                                          </Box>
+                                        <Flex
+                                          width={"100%"}
+                                          style={{
+                                            marginLeft: "8px",
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingBottom: "4px",
+                                            justifyContent: 'space-between',
+                                            borderBottom: "1px solid #EAECF0",
+                                            alignItems:"center"
+                                          }}>
+                                          <Flex width={"100%"}>
+                                            
+                                            <Text
+                                            height={"fit-content"}
+                                              style={{
+                                                fontSize: 16,
+                                                color: '#344054',
+                                                fontWeight: 500,
+                                              }}>
+                                              {
+                                                prompt.replace(pattern, "@$1").match(/@(\w+)/)  === null ? `${username}'s personal AI assistant` : 
+                                                Object.keys(agents).includes(prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()) ? agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()] : `${username}'s personal AI assistant`
+                                              }
+                                            </Text>
+                                          <Spacer/>
+                                          <Flex flexDirection={"row"} alignItems={"center"} >
+
+                                          {
+                                            prompt.replace(pattern, "@$1").match(/@(\w+)/) === null ? (
+                                              <Text
+                                              style={{
+                                                fontSize: 10,
+                                                color: '#107569',
+                                                fontWeight: 500,
+                                                backgroundColor: "#F0FDF9",
+                                                padding: "3px",
+                                                height: "fit-content"
+                                              }}>
+                                              PRI AI
+                                            </Text>
+                                            ) : (
+                                              <>
+                                              {!Object.keys(agents).includes(prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()) ? (
+                                                  <Text
+                                                  style={{
+                                                    fontSize: 10,
+                                                    color: '#107569',
+                                                    fontWeight: 500,
+                                                    backgroundColor: "#F0FDF9",
+                                                    padding: "3px",
+                                                    height: "fit-content"
+                                                  }}>
+                                                  PRI AI
+                                                </Text>
+                                                ) : (
+                                                  <Text
+                                                  style={{
+                                                    fontSize: 10,
+                                                    color: '#5925DC',
+                                                    fontWeight: 500,
+                                                    backgroundColor: "#F4F3FF",
+                                                    padding: "3px",
+                                                    height: "fit-content"
+                                                  }}>
+                                                  AGENT
+                                                </Text>
+                                                )}
+                                              </>
+                                            )
+                                                
+                                            }
+                                            <Image
+                                              src="/Spinner.gif"
+                                              width={30}
+                                              height={30}
+                                                alt="Picture of the author"
+                                              />
+                                          </Flex>
+
+                                        
+                                          </Flex>
+                                          </Flex>
+                                      </Flex>
+                                    </Flex>
+                            {/* </Flex>    */}
                             </>
                             
-                        )}
+                            )}
                         </Flex>
                         
                     {/* Input */}
@@ -473,7 +959,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
     // flex: 1,
     height: 48,
   }} >
-                        <Box paddingRight={"10px"}>
+                        <Box paddingRight={"10px"} cursor={"pointer"} onClick={onOpen}>
                           <HelpIcon/>
                         </Box>
     <Flex
@@ -489,12 +975,23 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
   }}
     >
       {console.log(value)}
-  <MentionsInput allowSuggestionsAboveCursor={true} value={prompt} onChange={handleInputChange} placeholder="How did I sleep last night?" disabled={loading} singleLine style={{display: "inline-flex", input: {paddingLeft: "10px"},highlighter: {paddingLeft: "10px", outline: "none", textDecoration: "none"}, flex: 1, fontSize: 16, color: 'inherit', suggestions: {
-    list: {
-      overflowY: "auto",
-      height: "40vh"
-    }
-  }}}>
+  <MentionsInput   onKeyDown={(event)=>{if(event.key==="Enter"){submit()}}} allowSuggestionsAboveCursor={true} value={prompt} onChange={handleInputChange} placeholder="How did I sleep last night?" disabled={loading} singleLine style={{ "&singleLine": {
+    display: 'inline-block',
+    width: "100%",
+    maxWidth: "calc(100vw - 107px)",
+    
+
+    highlighter: {
+      padding: 1,
+      border: '2px inset transparent',
+      overflowX: "hidden",
+    },
+    input: {
+      padding: 1,
+      border: '2px inset',
+      minHeight: 30,
+    },
+  } }}>
         <Mention
           trigger="@"
           displayTransform={(a, display) => `@${display}`}
@@ -537,6 +1034,91 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                         </Flex>
                     </Flex>  
                     </Flex>
+                    <Drawer placement={"bottom"} onClose={onClose} isOpen={isOpen}>
+        <DrawerOverlay />
+        <motion.div drag="y"  dragElastic={{bottom:1}} dragPropagation onDragEnd={onDrag} dragConstraints={{ top: 0, bottom: 0 }} style={{top: 0, bottom: 0}}>
+        <DrawerContent maxHeight={"90vh"} borderTopLeftRadius={"16px"} borderTopRightRadius={"16px"}>
+          <DrawerCloseButton />
+         <ButtonGroup isAttached justifyContent={"center"} marginTop={"20px"}>
+            <Button isActive={drawerTab===0} onClick={()=>{setDrawerTab(0)}}>Agents</Button>
+            <Button isActive={drawerTab===1} onClick={()=>{setDrawerTab(1)}}>Prompting</Button>
+         </ButtonGroup>
+         <Flex padding={"20px"} height={"100%"} flexDir={"column"} minH={"1px"}>
+          {
+            drawerTab === 0 && (
+              <>
+              <Text>Specialist agents</Text>
+              <Text>Use Pri-AI to talk to your connected data.</Text>
+              <Flex flexDirection={"column"} overflowY={"scroll"} gap={"16px"}>
+              {
+                agentDetails.map((agent,i)=>{
+                  return (
+                    <Flex key={i} flexDir={"row"} padding={"8px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} border={"1px solid #EAECF0"}>
+                      <Box alignSelf={"center"} >
+                      <Image
+                      src="/AgentSpecialist.png"
+                      width={84}
+                      height={84}
+                        alt={`Picture of ${agent.title}`}
+                        style={{maxWidth: "unset"}}
+                    
+                      />
+                      </Box>
+                      <Flex paddingLeft={"16px"} flexDir={"column"}>
+                      <Text color={"#101828"} fontWeight={600} fontSize={"14px"}>{agent.title} <span style={{color: "#107569", fontWeight: 500, fontSize: "12px", backgroundColor: "#F0FDF9", padding: "2px 8px", borderRadius: "16px" }}>@{agent.call}</span></Text>
+                      <Text color={"#475467"}>{agent.description}</Text>
+                      </Flex>
+                      
+                    </Flex>
+                  )
+                })
+              }
+              
+
+              </Flex>
+              </>
+            )
+          }
+          {
+            drawerTab === 1 && (
+              <>
+              <Text color={"#101828"} fontWeight={600}>Live data promping</Text>
+              <Text color={"#475467"}>Use Pri-AI to talk to your connected data.</Text>
+              <Flex flexDirection={"column"} overflowY={"scroll"} gap={"16px"}>
+                <Text color={"#101828"} fontWeight={500}>#+source name</Text>
+                <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
+                  <Text color={"#101828"} fontWeight={600}>Try this</Text>
+                  <Text color={"#475467"}>“<span style={{display: "inline-block",mixBlendMode: "multiply",backgroundColor: "#F2F4F7", borderRadius: "16px", padding: "2px 8px", color: "#344054", fontWeight: 500}}>#appleHealth</span> What is my average step count over the last two weeks?”</Text>
+                </Flex>
+                <Text color={"#101828"} fontWeight={500}>Ask Pri-AI what it can do with a source </Text>
+                <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
+                  <Text color={"#101828"} fontWeight={600}>Try this</Text>
+                  <Text color={"#475467"}>“What can you do with <span style={{display: "inline-block",mixBlendMode: "multiply",backgroundColor: "#F2F4F7", borderRadius: "16px", padding: "2px 8px", color: "#344054", fontWeight: 500}}>#appleHealth</span>?”</Text>
+                </Flex>
+                <Text color={"#101828"} fontWeight={500}>Example sources </Text>
+                <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
+                  <Text style={{wordWrap: "break-word", whiteSpace: "pre-wrap"}} >{["appleHealth", "fitbit", "oura", "garmin", "logmore", "ichijiku", "movesense", "heierling", "netflix", "chasebank", "myftinesspal", "amazon", "spotify", "applemusic"].map((source, key)=>{
+                    return (
+                      <span key={index} style={{display: "inline-block",mixBlendMode: "multiply",backgroundColor: "#F2F4F7", borderRadius: "16px", padding: "2px 8px", color: "#344054", fontWeight: 500}}>#{source}</span>
+                    )
+                  })}</Text>
+                  <Text style={{wordWrap: "break-word", whiteSpace: "pre-wrap"}}>{["fitness", "nutrition", "externalSensor", "finance"].map((source, key)=>{
+                    return (
+                      <span key={index} style={{display: "inline-block",mixBlendMode: "multiply",backgroundColor: "#F2F4F7", borderRadius: "16px", padding: "2px 8px", color: "#344054", fontWeight: 500}}>#{source}</span>
+                    )
+                  })}</Text>
+                </Flex>
+
+
+              </Flex>
+              </>
+            )
+          }
+         
+         </Flex>
+        </DrawerContent>
+        </motion.div>
+      </Drawer>
         </>
     )
 }
