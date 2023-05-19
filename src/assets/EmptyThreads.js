@@ -11,13 +11,13 @@ export function EmptyThread() {
       viewBox="0 0 271 223"
     >
       <path
-        fill="url(#pattern0)"
+        fill="url(#emptyThread)"
         d="M0 0H271V222H0z"
         transform="translate(0 .5)"
       ></path>
       <defs>
         <pattern
-          id="pattern0"
+          id="emptyThread"
           width="1"
           height="1"
           patternContentUnits="objectBoundingBox"

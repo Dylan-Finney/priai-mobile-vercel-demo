@@ -1,8 +1,8 @@
 import React from "react";
 
-export function AIAvatar() {
+export function AIAvatar({scale}) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={scale === 2 ? "30" : scale === 3 ? "50" : "24"} height={scale === 2 ? "30" : scale === 3 ? "50" : "24"} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="0.5" y="0.5" width="23" height="23" rx="11.5" fill="#F0FDF9"/>
 <g clip-path="url(#clip0_394_36408)">
 <g filter="url(#filter0_b_394_36408)">

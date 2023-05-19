@@ -27,37 +27,69 @@ import { MentionsInput, Mention } from 'react-mentions'
 import { Error } from "@/assets/Error";
 import { Retry } from "@/assets/Retry";
 import { NewThreadIcon } from "@/assets/NewThread";
+import { AgentSkiCoachIcon } from "@/assets/AgentSkiCoachIcon";
+import { AgentTrainerIcon } from "@/assets/AgentTrainerIcon";
+import { AgentBasketballCoachIcon } from "@/assets/AgentBasketballIcon";
+import { AgentSleepCoachIcon } from "@/assets/AgentSleepCoachIcon";
+import { AgentNutritionistIcon } from "@/assets/AgentNutritionistIcon";
 
 const username = "User"
+const agents = {
+  //Personality
+  "caregiver": "Caregiver",
+  "jester": "Jester",
+  "storyteller": "Storyteller",
+  "analyst": "Analyst",
+  "mentor": "Mentor",
+  "philosopher": "Philosopher",
+  "challenger": "Challenger",
+  "language": "Language Tutor",
+  //Topical
+  "nutritionist": "Nutritionist",
+  "sleepcoach": "Sleep Coach",
+  "basketballcoach": "Basketball Coach",
+  "skicoach": "Ski Coach",
+  "travel": "Travel Guide",
+  "productivity": "Productivity Coach",
+  "socialint": "Social Interaction Coach",
+  "tailor": "Tailor",
+  "trainer": "Personal trainer"
 
+
+}
 const agentDetails = [
   {
     "title": "Heierling",
-    "url": "AgentSpecialist.png",
+    "url": "Heierling.png",
+    "icon": <AgentSkiCoachIcon scale={1}/>,
     "description": "Get detailed breakdowns and suggestions for every run.",
     "call": "SkiCoach"
   },
   {
     "title": "Sleep lab",
-    "url": "AgentSpecialist.png",
+    "url": "SleepLab.png",
+    "icon": <AgentSleepCoachIcon scale={1}/>,
     "description": "Understand your sleep profile and create plans to maximize your sleep health ",
     "call": "SleepCoach"
   },
   {
     "title": "Game 6",
-    "url": "AgentSpecialist.png",
+    "url": "Game6.png",
+    "icon": <AgentBasketballCoachIcon scale={1}/>,
     "description": "A coach in your pocket. Training and game day analysis help you perform your best every time.",
     "call": "BasketballCoach"
   },
   {
     "title": "NourishWell",
-    "url": "AgentSpecialist.png",
+    "url": "NourishWell.png",
+    "icon": <AgentNutritionistIcon scale={1}/>,
     "description": "Get detailed breakdowns and suggestions for every meal.",
     "call": "Nutritionist"
   },
   {
     "title": "Opti-Fit",
-    "url": "AgentSpecialist.png",
+    "url": "OptiFit.png",
+    "icon": <AgentTrainerIcon scale={1}/>,
     "description": "Plan and analyze your workouts.",
     "call": "Trainer"
   }
@@ -75,18 +107,58 @@ const agentsImages = {
   "Challenger": "AgentAvatar1.png",
   "Language Tutor": "AgentAvatar1.png",
   //Topical
-  "Nutritionist": "AgentAvatar1.png",
-  "Sleep Coach": "AgentAvatar1.png",
-  "Basketball Coach": "AgentAvatar1.png",
-  "Ski Coach": "AgentAvatar1.png",
+  "Nutritionist":{ 
+    circleAvatar: "AIAgentNutritionistAvatar.png",
+    threadIcon: <AgentNutritionistIcon scale={2}/>,
+    chatIcon: <AgentNutritionistIcon scale={1}/>
+  },
+  "Sleep Coach":{ 
+    circleAvatar: "AIAgentSleepCoachAvatar.png",
+    threadIcon: <AgentSleepCoachIcon scale={2}/>,
+    chatIcon: <AgentSleepCoachIcon scale={1}/>
+  },
+  "Basketball Coach":{ 
+    circleAvatar: "AIAgentBasketballCoachAvatar.png",
+    threadIcon: <AgentBasketballCoachIcon scale={2}/>,
+    chatIcon: <AgentBasketballCoachIcon scale={1}/>
+  },
+  "Ski Coach":{ 
+    circleAvatar: "AIAgentSkiCoachAvatar.png",
+    threadIcon: <AgentSkiCoachIcon scale={2}/>,
+    chatIcon: <AgentSkiCoachIcon scale={1}/>
+  },
   "Travel Guide": "AgentAvatar1.png",
   "Productivity Coach": "AgentAvatar1.png",
   "Social Interaction Coach": "AgentAvatar1.png",
   "Tailor": "AgentAvatar1.png",
-  "Personal trainer": "AgentAvatar1.png"
+  "Personal trainer":{ 
+    circleAvatar: "AIAgentTrainerAvatar.png",
+    threadIcon: <AgentTrainerIcon scale={2}/>,
+    chatIcon: <AgentTrainerIcon scale={1}/>
+  },
 
 
 }
+function formatTimestamp(timestamp) {
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  
+  const date = new Date(timestamp);
+  const day = daysOfWeek[date.getDay()];
+  let hour = date.getHours();
+  const minutes = date.getMinutes();
+  let period = 'am';
+  
+  if (hour >= 12) {
+    period = 'pm';
+    if (hour > 12) {
+      hour -= 12;
+    }
+  }
+  
+  const formattedTime = `${hour}:${minutes.toString().padStart(2, '0')}${period}`;
+  return `${day} ${formattedTime}`;
+}
+
 function App(){
     const [launch, setLaunch] = useState(false)
     const [screen, setScreen] = useState(0)
@@ -94,40 +166,41 @@ function App(){
     const [index, setIndex] = useState(-1)
     const Context = createContext()
     const [editMode, setEditMode] = useState(false)
+    const [selectedAgent, setSelectedAgent] = useState("")
     const [threadFilter, setThreadFilter] = useState("")
     const [conversations, setConversations] = useState([
-      {title: "Example Message", messages: [
-        {"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."},
-        {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Personal Assistant", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."},
-        {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Social Interaction Coach", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."},
-        {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Productivity Coach", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."}
+      // {title: "Example Message", messages: [
+      //   {"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."},
+      //   {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Personal Assistant", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."},
+      //   {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Social Interaction Coach", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."},
+      //   {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Productivity Coach", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."}
         
-      ], lastAccess: new Date(1683999993000).toLocaleDateString()},
-      {title: "Example Errors", messages: [
-        {
-          "speaker": "User",
-          "message": "What is the capital of Japan?"
-        },
-        {
-          "speaker": "Personal Assistant",
-          "message": "Pri-AI encountered the following error:",
-          "error": {
-            "status": 401,
-            "statusText": "Unauthorized"
-          }
-        },{
-          "speaker": "User",
-          "message": "What is the capital of France?"
-        },
-        {
-          "speaker": "Personal Assistant",
-          "message": "Pri-AI encountered the following error:",
-          "error": {
-            "status": 401,
-            "statusText": "Unauthorized"
-          }
-        }
-      ], lastAccess: new Date(1683999993000).toLocaleDateString()},
+      // ], lastAccess: new Date(1683999993000).toLocaleDateString()},
+      // {title: "Example Errors", messages: [
+      //   {
+      //     "speaker": "User",
+      //     "message": "What is the capital of Japan?"
+      //   },
+      //   {
+      //     "speaker": "Personal Assistant",
+      //     "message": "Pri-AI encountered the following error:",
+      //     "error": {
+      //       "status": 401,
+      //       "statusText": "Unauthorized"
+      //     }
+      //   },{
+      //     "speaker": "User",
+      //     "message": "What is the capital of France?"
+      //   },
+      //   {
+      //     "speaker": "Personal Assistant",
+      //     "message": "Pri-AI encountered the following error:",
+      //     "error": {
+      //       "status": 401,
+      //       "statusText": "Unauthorized"
+      //     }
+      //   }
+      // ], lastAccess: new Date(1683999993000).toLocaleDateString()},
       
     ])
     
@@ -161,7 +234,7 @@ function App(){
                   innerScreen === true ? (
                       <>
                       
-                      <Convo  conversations={conversations} setConversations={(convoCopy)=>{setConversations(convoCopy)}}  index={index} setIndex={(newIndex)=>{setIndex(newIndex)}} clearConversation={()=>{setConversations(conversations.filter((data, idx) => idx !== index )); setIndex(-1);}} newConversation={(newMessages)=>{return newConversations(newMessages)}} goBack={()=>{setInnerScreen(false)}}/>
+                      <Convo selectedAgent={selectedAgent}  conversations={conversations} setConversations={(convoCopy)=>{setConversations(convoCopy)}}  index={index} setIndex={(newIndex)=>{setIndex(newIndex)}} clearConversation={()=>{setConversations(conversations.filter((data, idx) => idx !== index )); setIndex(-1);}} newConversation={(newMessages)=>{return newConversations(newMessages)}} goBack={()=>{setInnerScreen(false); setSelectedAgent("")}}/>
                       </>
                   ) : (
                       <>
@@ -176,7 +249,7 @@ function App(){
           <Text cursor={"pointer"} onClick={()=>{setEditMode(!editMode)}} fontWeight={600} fontSize={"20px"} color={"#107569"}>Edit</Text> */}
           </Flex>
           <Box width={"100%"} marginTop={"32px"}>
-                <ChatIconsSwiper/>
+                <ChatIconsSwiper onClickAgent={(agent)=>{setInnerScreen(true); setIndex(-1); setSelectedAgent(agent)}}/>
               </Box>
           {
             conversations.length > 0 ? (
@@ -214,7 +287,7 @@ function App(){
           }
        
        <Flex style={{ zIndex: 99999, position: 'fixed', right: 10, bottom: "0.5vh", paddingBottom: "8%"}}>
-          <Button onClick={()=>{setInnerScreen(true); setIndex(-1);  }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>
+          <Button onClick={()=>{setInnerScreen(true); setIndex(-1) }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>
             <NewThreadIcon/>
             <Text paddingLeft={"5px"}>New Thread</Text>
             </Button>
@@ -254,7 +327,7 @@ function App(){
         
     )
 }
-const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversations, setConversations, clearConversation, retryExchange}) => {
+const Convo = ({goBack, selectedAgent, emptyConvo, index, newConversation, setIndex,conversations, setConversations, clearConversation, retryExchange}) => {
     const [prompt, setPrompt] = useState("")
     const [loading, setLoading] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -282,32 +355,11 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
     setPrompt(newValue);
   };
 
-    const agents = {
-      //Personality
-      "caregiver": "Caregiver",
-      "jester": "Jester",
-      "storyteller": "Storyteller",
-      "analyst": "Analyst",
-      "mentor": "Mentor",
-      "philosopher": "Philosopher",
-      "challenger": "Challenger",
-      "language": "Language Tutor",
-      //Topical
-      "nutritionist": "Nutritionist",
-      "sleepcoach": "Sleep Coach",
-      "basketballcoach": "Basketball Coach",
-      "skicoach": "Ski Coach",
-      "travel": "Travel Guide",
-      "productivity": "Productivity Coach",
-      "socialint": "Social Interaction Coach",
-      "tailor": "Tailor",
-      "trainer": "Personal trainer"
-  
-  
-  }
+    
 
     const submit = async (retryIndex = null) => {
         console.log("test")
+        const timeSent = Date.now()
         
         // if (retryIndex) {
         //   setLoading(retryIndex)
@@ -493,6 +545,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                   answer = answer + chunkValue
                   console.log(answer)
                 }
+                const timeReceived = Date.now()
                 if (response.status > 399) throw JSON.parse(answer)
                 console.log(answer)
   
@@ -505,11 +558,11 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                 speaker = agents[agent[1].toLowerCase()]
               }
                 if (index === -1) {
-                  const newIndex = newConversation([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: answer}])
+                  const newIndex = newConversation([{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": speaker, message: answer, time: timeReceived}])
                   setIndex(newIndex)
               } else {
                 var conversationCopy = conversations
-                conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: answer}])
+                conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": speaker, message: answer, time: timeReceived}])
                 setConversations(conversationCopy)
                 setPrompt("")
               }
@@ -527,11 +580,12 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                   setIndex(newIndex)
               } else {
                 var conversationCopy = conversations
-                conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: "Pri-AI encountered the following error:", error: e}])
+                conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": speaker, message: "Pri-AI encountered the following error:", error: e, time: Date.now()}])
                 setConversations(conversationCopy)
                 }
                 setPrompt("")
           }
+          setPrompt("")
           setLoading(false)
           console.log("end")
         // }
@@ -542,6 +596,14 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
       var element = document.getElementById('chatlog');
       element.scrollTop = element.scrollHeight;
     },[conversations[index]?.messages, loading])
+
+    useEffect(()=>{
+      if (selectedAgent !== "") setPrompt(`@${Object.keys(agents).find((agent)=>{
+        // console.log({find: agents[agent], selectedAgent})
+        return agents[agent] === selectedAgent
+      })} `)
+      
+    }, [selectedAgent])
     return (
         <>
           {/* Header */}
@@ -586,8 +648,8 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                             conversations[index]?.messages.map((a, messageIndex)=>{
                                 console.log("a",a)
                                 const type = a.speaker === "User" ? "entry": ""
-                                const title ="Title"
-                                const time = "Thursday 6:30pm"
+                                // const title ="Title"
+                                // const time = "Thursday 6:30pm"
                                 return (
                                     <>
                                     {messageIndex===0 && (
@@ -618,13 +680,13 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                                                 fontWeight: 400,
                                                 alignSelf: "end"
                                               }}>
-                                              {time}
+                                              {formatTimestamp(a.time)}
                                             </Text>
                                           )
                                         }
                                         <Flex flexDir={"row"}>
                                           <Box>
-                                            {type === 'entry' ? <UserAvatar /> : <AIAvatar />}
+                                            {type === 'entry' ? <UserAvatar /> :  agentsImages[a.speaker]?.chatIcon ? agentsImages[a.speaker]?.chatIcon :  <AIAvatar/>}
                                           </Box>
                                         <Flex
                                           width={"100%"}
@@ -658,7 +720,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                                                 fontWeight: 400,
                                                 alignSelf: "end"
                                               }}>
-                                              {time}
+                                              {formatTimestamp(a.time)}
                                             </Text>
                                           ) : (
                                             <Flex alignItems={"center"} gap={"5px"}>
@@ -832,7 +894,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                                             fontWeight: 400,
                                             alignSelf: "end"
                                           }}>
-                                          Thursday 6:30pm
+                                          {formatTimestamp(Date.now())}
                                         </Text>
 
                                         
@@ -878,11 +940,20 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                                             fontWeight: 400,
                                             alignSelf: "end"
                                           }}>
-                                          Thursday 6:30pm
+                                          {/* Thursday 6:30pm */}
                                         </Text>
                                         <Flex flexDir={"row"}>
                                           <Box>
-                                            <AIAvatar />
+                                            {
+                                             prompt.replace(pattern, "@$1").match(/@(\w+)/) === null ? (
+                                              <AIAvatar/>
+                                              ) : (
+                                                <>
+                                                {Object.keys(agents).includes(prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()) ? agentsImages[agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()]].chatIcon  : <AIAvatar/>}
+                                                
+                                                </>
+                                              )
+                                            }
                                           </Box>
                                         <Flex
                                           width={"100%"}
@@ -990,7 +1061,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
 
     // justifyContent: "center",
     // flex: 1,
-    height: 48,
+    height: 60,
   }} >
                         <Box paddingRight={"10px"} cursor={"pointer"} onClick={onOpen}>
                           <HelpIcon/>
@@ -1012,7 +1083,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
     display: 'inline-block',
     width: "100%",
     maxWidth: "calc(100vw - 107px)",
-    
+    height: 40,
     suggestions: {
       list: {
         overflowY: "auto",
@@ -1027,7 +1098,8 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
     input: {
       padding: 1,
       // border: '2px inset',
-      minHeight: 30,
+      
+      minHeight: 40,
     },
   } }}>
         <Mention
@@ -1072,7 +1144,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                         </Flex>
                     </Flex>  
                     </Flex>
-                    <Box minHeight={"6vh"} width={"100%"} backgroundColor={"#F9F9F9"}/>
+                    {/* <Box minHeight={"6vh"} width={"100%"} backgroundColor={"#F9F9F9"}/> */}
                     <Drawer placement={"bottom"} onClose={onClose} isOpen={isOpen}>
         <DrawerOverlay />
         <motion.div drag="y"  dragElastic={{bottom:1}} dragPropagation onDragEnd={onDrag} dragConstraints={{ top: 0, bottom: 0 }} style={{top: 0, bottom: 0}}>
@@ -1086,7 +1158,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
           {
             drawerTab === 0 && (
               <>
-              <Text fontSize={"16px"} fontWeight={600}>Specialist agents</Text>
+              <Text fontSize={"16px"} fontWeight={600} paddingBottom={"10px"}>Specialist agents</Text>
               <Text fontSize={"14px"} color={"#475467"}>Use Pri-AI to talk to your connected data.</Text>
               <Box minHeight={"1px"} width={"100%"} backgroundColor={"#EAECF0"} margin={"10px 0px"}/>
               <Flex flexDirection={"column"} overflowY={"scroll"} gap={"16px"}>
@@ -1094,15 +1166,22 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                 agentDetails.map((agent,i)=>{
                   return (
                     <Flex key={i} flexDir={"row"} padding={"8px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} border={"1px solid #EAECF0"}>
-                      <Box alignSelf={"center"} >
+                      <Box position={"relative"}>
+                      <Box alignSelf={"center"} overflow={"hidden"} borderRadius={"5px"}>
                       <Image
-                      src="/AgentSpecialist.png"
+                      src={`/${agent.url}`}
+                      
                       width={84}
                       height={84}
                         alt={`Picture of ${agent.title}`}
                         style={{maxWidth: "unset"}}
                     
                       />
+                      </Box>
+                      <Box position={"absolute"} zIndex={2} bottom={-1} right={-1}>
+                        {agent.icon}
+
+                      </Box>
                       </Box>
                       <Flex paddingLeft={"16px"} flexDir={"column"}>
                       <Text color={"#101828"} fontWeight={600} fontSize={"14px"}>{agent.title} <span style={{color: "#107569", fontWeight: 500, fontSize: "12px", backgroundColor: "#F0FDF9", padding: "2px 8px", borderRadius: "16px" }}>@{agent.call}</span></Text>
@@ -1189,60 +1268,159 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
         </>
     )
 }
-const ChatIconsSwiper = () => {
+const ChatIconsSwiper = ({onClickAgent}) => {
   return (
     <Swiper
       // spaceBetween={50}
-      slidesPerView={6}
-      autoHeight={true}
+      // slidesPerView={4}
+      breakpoints={{
+        0: {
+          slidesPerView: 2
+        },
+        320: {
+          slidesPerView: 4
+        },
+        370: {
+          slidesPerView: 5
+        },
+        440: {
+          slidesPerView: 6
+        },
+        // 480: {
+        //   slidesPerView: 4
+        // }
+      }}
+      // autoHeight={true}
       spaceBetween={0}
       grabCursor={true}
       freeMode={true}
       onSlideChange={() => console.log('slide change')}
       onSwiper={(swiper) => console.log(swiper)}
     >
-      <SwiperSlide><Image
-      src="/AgentAvatar1.png"
-      width={50}
-      height={50}
-        alt="Picture of the author"
-      /></SwiperSlide>
-      <SwiperSlide><Image
-      src="/AgentAvatar2.png"
-      width={50}
-      height={50}
-        alt="Picture of the author"
-      /></SwiperSlide>
-      <SwiperSlide><Image
+      <SwiperSlide style={{padding: "10px"}}>
+          <Box cursor={"pointer"} position={"relative"} width={"fit-content"} onClick={()=>{onClickAgent("")}}> 
+          <AIAvatar scale={3}/>
+          </Box>
+          
+          </SwiperSlide>
+      {
+        Object.keys(agentsImages).filter((agent)=>{
+          return agentsImages[agent]?.circleAvatar || false
+        }).sort().map((agent,i)=>{
+          return (<SwiperSlide key={i} style={{padding: "10px"}}>
+          <Box cursor={"pointer"} position={"relative"} width={"fit-content"} onClick={()=>{onClickAgent(agent)}}> 
+          <Image
+          src={`/${agentsImages[agent].circleAvatar}`}
+          width={50}
+          
+          height={50}
+          
+          alt={`Picture of the ${agent}`}
+          >
+            
+          </Image>
+          <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
+          {agentsImages[agent].chatIcon}
+
+          </Box>
+          </Box>
+          
+          </SwiperSlide>) 
+        })
+      }
+      {/* <SwiperSlide style={{padding: "10px"}}>
+        <Box  position={"relative"} width={"fit-content"} > 
+        <Image
+        src="/AIAgentSkiCoachAvatar.png"
+        width={50}
+        height={50}
+        alt="Picture of the skicoach"
+        >
+          
+        </Image>
+        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
+        <AgentSkiCoachIcon/>
+
+        </Box>
+        </Box>
+        
+      </SwiperSlide>
+      <SwiperSlide style={{padding: "10px"}}>
+        <Box  position={"relative"} width={"fit-content"} > 
+        <Image
+        src="/AIAgentTrainerAvatar.png"
+        width={50}
+        height={50}
+        alt="Picture of the skicoach"
+        >
+          
+        </Image>
+        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
+        <AgentTrainerIcon/>
+
+        </Box>
+        </Box>
+        
+      </SwiperSlide>
+      <SwiperSlide style={{padding: "10px"}}>
+        <Box  position={"relative"} width={"fit-content"} > 
+        <Image
+        src="/AIAgentBasketballCoachAvatar.png"
+        width={50}
+        height={50}
+        alt="Picture of the Basketball coach"
+        >
+          
+        </Image>
+        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
+        <AgentBasketballCoachIcon/>
+
+        </Box>
+        </Box>
+        
+      </SwiperSlide>
+      <SwiperSlide style={{padding: "10px"}}>
+        <Box  position={"relative"} width={"fit-content"} > 
+        <Image
+        src="/AIAgentNutritionistAvatar.png"
+        width={50}
+        height={50}
+        alt="Picture of the Nutritionist coach"
+        >
+          
+        </Image>
+        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
+        <AgentNutritionistIcon/>
+
+        </Box>
+        </Box>
+        
+      </SwiperSlide>
+      <SwiperSlide style={{padding: "10px"}}>
+        <Box  position={"relative"} width={"fit-content"} > 
+        <Image
+        src="/AIAgentSleepCoachAvatar.png"
+        width={50}
+        height={50}
+        alt="Picture of the Sleep coach"
+        >
+          
+        </Image>
+        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
+        <AgentSleepCoachIcon/>
+
+        </Box>
+        </Box>
+        
+      </SwiperSlide> */}
+
+      {/* <SwiperSlide><Image
       src="/AgentAvatar3.png"
       width={50}
       height={50}
         alt="Picture of the author"
-      /></SwiperSlide>
-      <SwiperSlide><Image
-      src="/AgentAvatar4.png"
-      width={50}
-      height={50}
-        alt="Picture of the author"
-      /></SwiperSlide>
-      <SwiperSlide><Image
-      src="/AgentAvatar5.png"
-      width={50}
-      height={50}
-        alt="Picture of the author"
-      /></SwiperSlide>
-      <SwiperSlide><Image
-      src="/AgentAvatar6.png"
-      width={50}
-      height={50}
-        alt="Picture of the author"
-      /></SwiperSlide>
-      <SwiperSlide><Image
-      src="/AgentAvatar7.png"
-      width={50}
-      height={50}
-        alt="Picture of the author"
-      /></SwiperSlide>
+      /></SwiperSlide> */}
+     
     </Swiper>
   )
 }
@@ -1291,12 +1469,7 @@ const Thread = ({
                   return (
                     <>
                      <Box width={"32px"} height={"32px"} backgroundColor={"white"} border={"1px solid white"} borderRadius={"20px"} marginLeft={agentIndex > 0 ? "-10px" : "unset"}>
-                    <Image
-                              src={`/${agentsImages[speaker]}`}
-                              width={35}
-                              height={35}
-
-                              />
+                      {agentsImages[speaker]?.threadIcon ? agentsImages[speaker].threadIcon  :<AIAvatar scale={2}/>}
                     </Box>
                     </>
                   )
