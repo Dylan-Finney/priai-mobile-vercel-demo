@@ -975,12 +975,17 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
   }}
     >
       {console.log(value)}
-  <MentionsInput   onKeyDown={(event)=>{if(event.key==="Enter"){submit()}}} allowSuggestionsAboveCursor={true} value={prompt} onChange={handleInputChange} placeholder="How did I sleep last night?" disabled={loading} singleLine style={{ "&singleLine": {
+  <MentionsInput   onKeyDown={(event)=>{if(event.key==="Enter"){submit()}}} forceSuggestionsAboveCursor={true} value={prompt} onChange={handleInputChange} placeholder="How did I sleep last night?" disabled={loading} singleLine style={{ "&singleLine": {
     display: 'inline-block',
     width: "100%",
     maxWidth: "calc(100vw - 107px)",
     
-
+    suggestions: {
+      list: {
+        overflowY: "auto",
+        height: "40vh"
+      }
+    },
     highlighter: {
       padding: 1,
       border: '2px inset transparent',
@@ -1002,7 +1007,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
             }
           })}
           style={{
-            backgroundColor: '#107896',
+            backgroundColor: '#F0FDF9',
           }}
           markup={"@[__display__](__id__)"}
         />
@@ -1012,7 +1017,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
           data={[]}
           regex={/#(\S+)/}
           style={{
-            backgroundColor: '#9A2617',
+            backgroundColor: '#F0FDF9',
             textShadow: ""
           }}
           markup="#__id__"
