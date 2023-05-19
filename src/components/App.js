@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Input, SlideFade, Spacer, Spinner, Text, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Input, SlideFade, Spacer, Spinner, Text, useDisclosure } from "@chakra-ui/react";
 import { motion, PanInfo } from 'framer-motion';
 import Logo from "../assets/logo"
 import LogoMark from "../assets/logomark";
@@ -26,6 +26,7 @@ import { TrashIcon } from "@/assets/TrashIcon";
 import { MentionsInput, Mention } from 'react-mentions'
 import { Error } from "@/assets/Error";
 import { Retry } from "@/assets/Retry";
+import { NewThreadIcon } from "@/assets/NewThread";
 
 const username = "User"
 
@@ -61,6 +62,31 @@ const agentDetails = [
     "call": "Trainer"
   }
 ]
+
+const agentsImages = {
+  "Personal Assistant": "AgentAvatar1.png",
+  //Personality
+  "Caregiver": "AgentAvatar1.png",
+  "Jester": "AgentAvatar1.png",
+  "Storyteller": "AgentAvatar1.png",
+  "Analyst": "AgentAvatar1.png",
+  "Mentor": "AgentAvatar1.png",
+  "Philosopher": "AgentAvatar1.png",
+  "Challenger": "AgentAvatar1.png",
+  "Language Tutor": "AgentAvatar1.png",
+  //Topical
+  "Nutritionist": "AgentAvatar1.png",
+  "Sleep Coach": "AgentAvatar1.png",
+  "Basketball Coach": "AgentAvatar1.png",
+  "Ski Coach": "AgentAvatar1.png",
+  "Travel Guide": "AgentAvatar1.png",
+  "Productivity Coach": "AgentAvatar1.png",
+  "Social Interaction Coach": "AgentAvatar1.png",
+  "Tailor": "AgentAvatar1.png",
+  "Personal trainer": "AgentAvatar1.png"
+
+
+}
 function App(){
     const [launch, setLaunch] = useState(false)
     const [screen, setScreen] = useState(0)
@@ -72,7 +98,10 @@ function App(){
     const [conversations, setConversations] = useState([
       {title: "Example Message", messages: [
         {"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."},
-        {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Personal Assistant", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."}
+        {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Personal Assistant", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."},
+        {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Social Interaction Coach", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."},
+        {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Productivity Coach", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."}
+        
       ], lastAccess: new Date(1683999993000).toLocaleDateString()},
       {title: "Example Errors", messages: [
         {
@@ -124,7 +153,6 @@ function App(){
     
     return (
       <Flex width={"100vw"} height={"100vh"} flexDirection={"column"} overflowX={"hidden"}>
-
 
       {
           screen === 0 && (
@@ -185,8 +213,12 @@ function App(){
             )
           }
        
-       <Flex style={{ zIndex: 99999, position: 'fixed', right: 10, bottom: 60, paddingBottom: "8%"}}>
-          <Button onClick={()=>{setInnerScreen(true); setIndex(-1);  }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>New Thread</Button>
+       <Flex style={{ zIndex: 99999, position: 'fixed', right: 10, bottom: "0.5vh", paddingBottom: "8%"}}>
+          <Button onClick={()=>{setInnerScreen(true); setIndex(-1);  }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>
+            <NewThreadIcon/>
+            <Text paddingLeft={"5px"}>New Thread</Text>
+            </Button>
+
        </Flex>
        
           </Flex>
@@ -537,9 +569,9 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                           <Box onClick={()=>{goBack()}} cursor={"pointer"} padding={"5px"}>
                             <Back/>
                           </Box>
-                          <Flex flexDir={"column"} paddingLeft={"10px"}>
-                          <Text fontWeight={600} fontSize={"12px"}>{conversations[index]?.title}</Text>
-                          <Text fontWeight={400} fontSize={"10px"}>{[...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").join(", ")}</Text>
+                          <Flex flexDir={"column"} paddingLeft={"10px"} overflow={"hidden"}>
+                          <Text fontWeight={600} fontSize={"12px"} overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"} >{conversations[index]?.title}</Text>
+                          <Text fontWeight={400} fontSize={"10px"} overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"} >{[...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").join(", ")}</Text>
                           <Text></Text>
 
                           </Flex>
@@ -949,6 +981,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
+    borderBottom: "unset",
     // borderRadius: 10,
     paddingTop: 6,
     paddingBottom: 6,
@@ -993,7 +1026,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
     },
     input: {
       padding: 1,
-      border: '2px inset',
+      // border: '2px inset',
       minHeight: 30,
     },
   } }}>
@@ -1039,6 +1072,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                         </Flex>
                     </Flex>  
                     </Flex>
+                    <Box minHeight={"6vh"} width={"100%"} backgroundColor={"#F9F9F9"}/>
                     <Drawer placement={"bottom"} onClose={onClose} isOpen={isOpen}>
         <DrawerOverlay />
         <motion.div drag="y"  dragElastic={{bottom:1}} dragPropagation onDragEnd={onDrag} dragConstraints={{ top: 0, bottom: 0 }} style={{top: 0, bottom: 0}}>
@@ -1052,8 +1086,9 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
           {
             drawerTab === 0 && (
               <>
-              <Text>Specialist agents</Text>
-              <Text>Use Pri-AI to talk to your connected data.</Text>
+              <Text fontSize={"16px"} fontWeight={600}>Specialist agents</Text>
+              <Text fontSize={"14px"} color={"#475467"}>Use Pri-AI to talk to your connected data.</Text>
+              <Box minHeight={"1px"} width={"100%"} backgroundColor={"#EAECF0"} margin={"10px 0px"}/>
               <Flex flexDirection={"column"} overflowY={"scroll"} gap={"16px"}>
               {
                 agentDetails.map((agent,i)=>{
@@ -1071,7 +1106,7 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                       </Box>
                       <Flex paddingLeft={"16px"} flexDir={"column"}>
                       <Text color={"#101828"} fontWeight={600} fontSize={"14px"}>{agent.title} <span style={{color: "#107569", fontWeight: 500, fontSize: "12px", backgroundColor: "#F0FDF9", padding: "2px 8px", borderRadius: "16px" }}>@{agent.call}</span></Text>
-                      <Text color={"#475467"}>{agent.description}</Text>
+                      <Text color={"#475467"} fontSize={"12px"}>{agent.description}</Text>
                       </Flex>
                       
                     </Flex>
@@ -1087,9 +1122,11 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
           {
             drawerTab === 1 && (
               <>
-              <Text color={"#101828"} fontWeight={600}>Live data promping</Text>
-              <Text color={"#475467"}>Use Pri-AI to talk to your connected data.</Text>
-              <Flex flexDirection={"column"} overflowY={"scroll"} gap={"16px"}>
+              <Flex flexDirection={"column"} overflowY={"scroll"} gap={"10px"}>
+              <Text fontSize={"16px"} fontWeight={600}>Live data promping</Text>
+              <Text fontSize={"14px"} color={"#475467"}>Use Pri-AI to talk to your connected data.</Text>
+              <Box minHeight={"1px"} width={"100%"} backgroundColor={"#EAECF0"} margin={"10px 0px"}></Box>
+              <Flex flexDirection={"column"}  gap={"16px"}>
                 <Text color={"#101828"} fontWeight={500}>#+source name</Text>
                 <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
                   <Text color={"#101828"} fontWeight={600}>Try this</Text>
@@ -1104,18 +1141,43 @@ const Convo = ({goBack, emptyConvo, index, newConversation, setIndex,conversatio
                 <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
                   <Text style={{wordWrap: "break-word", whiteSpace: "pre-wrap"}} >{["appleHealth", "fitbit", "oura", "garmin", "logmore", "ichijiku", "movesense", "heierling", "netflix", "chasebank", "myftinesspal", "amazon", "spotify", "applemusic"].map((source, key)=>{
                     return (
-                      <span key={index} style={{display: "inline-block",mixBlendMode: "multiply",backgroundColor: "#F2F4F7", borderRadius: "16px", padding: "2px 8px", color: "#344054", fontWeight: 500}}>#{source}</span>
+                      <span key={index} style={{margin: "2px",display: "inline-block",mixBlendMode: "multiply",backgroundColor: "#F2F4F7", borderRadius: "16px", padding: "2px 8px", color: "#344054", fontWeight: 500}}>#{source}</span>
                     )
                   })}</Text>
                   <Text style={{wordWrap: "break-word", whiteSpace: "pre-wrap"}}>{["fitness", "nutrition", "externalSensor", "finance"].map((source, key)=>{
                     return (
-                      <span key={index} style={{display: "inline-block",mixBlendMode: "multiply",backgroundColor: "#F2F4F7", borderRadius: "16px", padding: "2px 8px", color: "#344054", fontWeight: 500}}>#{source}</span>
+                      <span key={index} style={{margin: "2px",display: "inline-block",mixBlendMode: "multiply",backgroundColor: "#F2F4F7", borderRadius: "16px", padding: "2px 8px", color: "#344054", fontWeight: 500}}>#{source}</span>
                     )
                   })}</Text>
+                  
                 </Flex>
 
 
               </Flex>
+              <Text fontSize={"16px"} fontWeight={600}>General prompting tips</Text>
+              <Box minHeight={"1px"} width={"100%"} backgroundColor={"#EAECF0"} margin={"10px 0px"}></Box>
+              <Flex flexDirection={"column"}  gap={"16px"}>
+                <Text color={"#101828"} fontWeight={500}>Ask Pri-AI what they can help you with</Text>
+                <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
+                  <Text color={"#101828"} fontWeight={600}>Try this</Text>
+                  <Text color={"#475467"}>“What can you help me with?”</Text>
+                </Flex>
+                <Text color={"#101828"} fontWeight={500}>Ask Pri-AI to explain </Text>
+                <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
+                  <Text color={"#101828"} fontWeight={600}>Try this</Text>
+                  <Text color={"#475467"}>“Explain your answer”</Text>
+                  <Text color={"#475467"}>“Explain why the sky is blue”</Text>
+                </Flex>
+                <Text color={"#101828"} fontWeight={500}>Ask Pri-AI ot brainstorm ideas</Text>
+                <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
+                  <Text color={"#101828"} fontWeight={600}>Try this</Text>
+                  <Text color={"#475467"}>Brainstorm 10 ideas for pet names. They all must start with “T””</Text>
+                </Flex>
+
+
+              </Flex>
+              </Flex>
+              
               </>
             )
           }
@@ -1195,31 +1257,26 @@ const Thread = ({
   const [renameOption, setRenameOption] = useState(false)
   const [save, setSave] = useState(false)
   const [tempName, setTempName] = useState(message.title)
+  const mentionedAgents = [...new Set(message.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").reverse()
   return (
     <Flex id="thread" flexDirection={"row"} alignItems={"center"} onClick={()=>{onClick()}} cursor={"pointer"} padding={"10px 10px"} border={"1px solid #EAECF0"} borderTop={index > 0 ? "unset" : "1px solid #EAECF0"} key={index} borderTopLeftRadius={ index === 0 ? "md" : "unset"} borderTopRightRadius={ index === 0 ? "md" : "unset"} width={"100%"}  borderBottomLeftRadius={ last ? "md" : "unset"} borderBottomRightRadius={ last ? "md" : "unset"} backgroundColor={showOptions ? "#f6f7f8":"#fff"}>
+        <Box>
         <ThreadIcon/>
-        <Flex paddingLeft={"10px"} flexDir={"column"}>
-          {
-            renameOption ? (
-              <Input onBlur={()=>{if (save){rename(tempName);setTempName(message.title);} else {setTempName(message.title);}setRenameOption(false)}} autoFocus onClick={(event)=>{event.stopPropagation()}} fontWeight={600} fontSize={"12px"} value={tempName} onChange={(event)=>{setTempName(event.target.value)}}/>
-
-            ) : (
-              <Text fontWeight={600} fontSize={"12px"}>{message.title}</Text>
-
-            )
-          }
+        </Box>
+        <Flex paddingLeft={"10px"} flexDir={"column"} overflow={"hidden"}>
+        <Text fontWeight={600} fontSize={"12px"} textOverflow={"ellipsis"} overflow={"hidden"} whiteSpace={"nowrap"}>{message.title}</Text>
         <Text fontWeight={400} fontSize={"10px"}>{message.lastAccess || "01/01/1990"}</Text>
         </Flex>
         <Spacer/>
         {
-          showOptions && (
+          showOptions ? (
             <>
             <Flex gap={"5px"}>
-              <Box onMouseDown={()=>{
-                if (renameOption){
-                  setSave(true)
-                }
-              }} padding={"5px"} onClick={(event)=>{event.stopPropagation();if (!save){setRenameOption(true)} else {setSave(false)}}}>
+              <Box padding={"5px"} onClick={(event)=>{event.stopPropagation();const newTitle = prompt(`What would you want to rename thread "${message.title}" as?`, message.title)
+                if (newTitle !== null && newTitle.length > 0) {
+                  setSave(!save)
+                  rename(newTitle)
+                }}}>
                 <RenameIcon/>
               </Box>
               <Box padding={"5px"} onClick={(event)=>{event.stopPropagation();deleteFunc()}}>
@@ -1227,11 +1284,67 @@ const Thread = ({
               </Box>
             </Flex>
             </>
+          ) : (
+            <>
+            {
+                mentionedAgents.slice(0,3).map((speaker, agentIndex)=>{
+                  return (
+                    <>
+                     <Box width={"32px"} height={"32px"} backgroundColor={"white"} border={"1px solid white"} borderRadius={"20px"} marginLeft={agentIndex > 0 ? "-10px" : "unset"}>
+                    <Image
+                              src={`/${agentsImages[speaker]}`}
+                              width={35}
+                              height={35}
+
+                              />
+                    </Box>
+                    </>
+                  )
+                })
+            }
+            {
+              mentionedAgents.length > 3 && (
+                <Box width={"32px"} height={"32px"} backgroundColor={"white"} border={"2px solid white"}  borderRadius={"20px"}  marginLeft={"-10px"} alignItems={"center"} justifyContent={"center"}>
+                  <Box backgroundColor={"#F2F4F7"} height={"95%"} width={"95%"}  borderRadius={"200px"} textAlign={"center"} padding={"5px 0"}>
+                    <Text color={"#475467"} fontSize={"12px"} fontWeight={500} marginTop={"auto"}>+{mentionedAgents.length - 3}</Text>
+                  </Box>
+                </Box>
+              )
+            }
+           
+            
+
+             {/* <Grid width={"fit-content"} templateColumns='repeat(5, 1fr)'>
+             {
+                mentionedAgents.slice(0,3).map((speaker, agentIndex)=>{
+                  return (
+                    <>
+                    <GridItem w='50px' h='33px' marginLeft={agentIndex > 0 ? `${-25 * agentIndex}px` : "unset"}>
+                      <Image
+                      src={`/${agentsImages[speaker]}`}
+                      width={35}
+                      height={35}
+
+                      />
+                    </GridItem>
+                    </>
+                  )
+                })
+              }
+              {
+                mentionedAgents.length > 3 && (
+                  <>
+                    <GridItem w='50px' h='33px' bg='blue.500' border={"1px solid red"} marginLeft={`${-25 * 3}px`}></GridItem>
+                    </>
+                )
+              }
+            </Grid> */}
+            </>
           )
         }
-        <Box id="" width={"30px"} onClick={(event)=>{event.stopPropagation();setShowOptions(!showOptions)}}>
+        <Box id="" minWidth={"30px"} maxWidth={"30px"} onClick={(event)=>{event.stopPropagation();setShowOptions(!showOptions)}}>
         <KebabIcon/>
-        </Box>
+        </Box> 
 
     </Flex>
 )
