@@ -33,7 +33,7 @@ import { AgentBasketballCoachIcon } from "@/assets/AgentBasketballIcon";
 import { AgentSleepCoachIcon } from "@/assets/AgentSleepCoachIcon";
 import { AgentNutritionistIcon } from "@/assets/AgentNutritionistIcon";
 
-const username = "User"
+// const username = "User"
 const agents = {
   //Personality
   "caregiver": "Caregiver",
@@ -159,7 +159,7 @@ function formatTimestamp(timestamp) {
   return `${day} ${formattedTime}`;
 }
 
-function App(){
+function App({username, aiName}){
     const [launch, setLaunch] = useState(false)
     const [screen, setScreen] = useState(0)
     const [innerScreen, setInnerScreen] = useState(0)
@@ -234,7 +234,7 @@ function App(){
                   innerScreen === true ? (
                       <>
                       
-                      <Convo selectedAgent={selectedAgent}  conversations={conversations} setConversations={(convoCopy)=>{setConversations(convoCopy)}}  index={index} setIndex={(newIndex)=>{setIndex(newIndex)}} clearConversation={()=>{setConversations(conversations.filter((data, idx) => idx !== index )); setIndex(-1);}} newConversation={(newMessages)=>{return newConversations(newMessages)}} goBack={()=>{setInnerScreen(false); setSelectedAgent("")}}/>
+                      <Convo username={username} aiName={aiName} selectedAgent={selectedAgent}  conversations={conversations} setConversations={(convoCopy)=>{setConversations(convoCopy)}}  index={index} setIndex={(newIndex)=>{setIndex(newIndex)}} clearConversation={()=>{setConversations(conversations.filter((data, idx) => idx !== index )); setIndex(-1);}} newConversation={(newMessages)=>{return newConversations(newMessages)}} goBack={()=>{setInnerScreen(false); setSelectedAgent("")}}/>
                       </>
                   ) : (
                       <>
@@ -265,7 +265,7 @@ function App(){
                     }
                   }).map((a,index)=>{
                       return (
-                          <Thread key={index} index={index} message={a} onClick={()=>{setIndex(index);setInnerScreen(true); var newConversations = conversations;
+                          <Thread username={username} key={index} index={index} message={a} onClick={()=>{setIndex(index);setInnerScreen(true); var newConversations = conversations;
                             newConversations[index].lastAccess = new Date().toLocaleDateString();
                             setConversations(newConversations);}} last={index === conversations.length-1} deleteFunc={()=>{setConversations(conversations.filter((data, idx) => idx !== index ))}} rename={(newTitle)=>{var newConversations = conversations;
                               newConversations[index].title = newTitle;
@@ -327,7 +327,7 @@ function App(){
         
     )
 }
-const Convo = ({goBack, selectedAgent, emptyConvo, index, newConversation, setIndex,conversations, setConversations, clearConversation, retryExchange}) => {
+const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newConversation, setIndex,conversations, setConversations, clearConversation, retryExchange}) => {
     const [prompt, setPrompt] = useState("")
     const [loading, setLoading] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -492,7 +492,9 @@ const Convo = ({goBack, selectedAgent, emptyConvo, index, newConversation, setIn
                         return true
                       }
                     }).slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0 ) || [],
-                    "prompt": promptProcessed
+                    "prompt": promptProcessed,
+                    "username": username,
+                    "aiName": aiName
                 })
                })
   
@@ -647,7 +649,7 @@ const Convo = ({goBack, selectedAgent, emptyConvo, index, newConversation, setIn
                         {
                             conversations[index]?.messages.map((a, messageIndex)=>{
                                 console.log("a",a)
-                                const type = a.speaker === "User" ? "entry": ""
+                                const type = a.speaker === username ? "entry": ""
                                 // const title ="Title"
                                 // const time = "Thursday 6:30pm"
                                 return (
@@ -708,7 +710,7 @@ const Convo = ({goBack, selectedAgent, emptyConvo, index, newConversation, setIn
                                                 color: '#344054',
                                                 fontWeight: 500,
                                               }}>
-                                              {type === 'entry' ? `You (${username})` : a.speaker === "Personal Assistant" ? `${username}'s personal AI assistant` : a.speaker}
+                                              {type === 'entry' ? `You (${username})` : a.speaker === "Personal Assistant" ? (aiName !== "" ? aiName : `${username}'s personal AI assistant`) : a.speaker}
                                             </Text>
                                           <Spacer/>
                                           {
@@ -976,8 +978,8 @@ const Convo = ({goBack, selectedAgent, emptyConvo, index, newConversation, setIn
                                                 fontWeight: 500,
                                               }}>
                                               {
-                                                prompt.replace(pattern, "@$1").match(/@(\w+)/)  === null ? `${username}'s personal AI assistant` : 
-                                                Object.keys(agents).includes(prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()) ? agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()] : `${username}'s personal AI assistant`
+                                                prompt.replace(pattern, "@$1").match(/@(\w+)/)  === null ? (aiName !== "" ? aiName : `${username}'s personal AI assistant`) : 
+                                                Object.keys(agents).includes(prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()) ? agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()] : (aiName !== "" ? aiName : `${username}'s personal AI assistant`)
                                               }
                                             </Text>
                                           <Spacer/>
@@ -1084,6 +1086,7 @@ const Convo = ({goBack, selectedAgent, emptyConvo, index, newConversation, setIn
     width: "100%",
     maxWidth: "calc(100vw - 107px)",
     height: 40,
+    marginLeft: "10px",
     suggestions: {
       list: {
         overflowY: "auto",
@@ -1092,6 +1095,7 @@ const Convo = ({goBack, selectedAgent, emptyConvo, index, newConversation, setIn
     },
     highlighter: {
       padding: 1,
+      paddingTop: 5,
       border: '2px inset transparent',
       overflowX: "hidden",
     },
@@ -1430,12 +1434,13 @@ const Thread = ({
   message, 
   deleteFunc, 
   rename,
-  last}) => {
+  last,
+  username}) => {
   const [showOptions, setShowOptions] = useState(false)
   const [renameOption, setRenameOption] = useState(false)
   const [save, setSave] = useState(false)
   const [tempName, setTempName] = useState(message.title)
-  const mentionedAgents = [...new Set(message.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").reverse()
+  const mentionedAgents = [...new Set(message.messages.map(item => item.speaker))].filter(speaker=>speaker !== username).reverse()
   return (
     <Flex id="thread" flexDirection={"row"} alignItems={"center"} onClick={()=>{onClick()}} cursor={"pointer"} padding={"10px 10px"} border={"1px solid #EAECF0"} borderTop={index > 0 ? "unset" : "1px solid #EAECF0"} key={index} borderTopLeftRadius={ index === 0 ? "md" : "unset"} borderTopRightRadius={ index === 0 ? "md" : "unset"} width={"100%"}  borderBottomLeftRadius={ last ? "md" : "unset"} borderBottomRightRadius={ last ? "md" : "unset"} backgroundColor={showOptions ? "#f6f7f8":"#fff"}>
         <Box>

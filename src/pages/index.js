@@ -10,15 +10,33 @@ import 'swiper/swiper.min.css';
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+
+export async function getServerSideProps({ req }) {
+  const username = req.headers['x-custom-username'] || "User";
+  const aiName = req.headers['x-custom-ainame'] || "";
+
+  // Return the custom headers as props
+  return {
+    props: {
+      customHeaders: {
+        username,
+        aiName,
+      },
+    },
+  };
+}
+
+
+export default function Home({ customHeaders }) {
   register();
+  console.log("customHeaders",customHeaders)
   return (
     <>
     {/* <Head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     </Head> */}
     {/* <main> */}
-    <App />
+    <App username={customHeaders.username} aiName={customHeaders.aiName}/>
     {/* </main> */}
     </>
   )
