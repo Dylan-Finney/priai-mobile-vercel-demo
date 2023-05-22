@@ -1149,7 +1149,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                     {/* <Box minHeight={"6vh"} width={"100%"} backgroundColor={"#F9F9F9"}/> */}
                     <Drawer placement={"bottom"} onClose={onClose} isOpen={isOpen}>
         <DrawerOverlay />
-        <motion.div drag="y"  dragElastic={{bottom:1}} dragPropagation onDragEnd={onDrag} dragConstraints={{ top: 0, bottom: 0 }} style={{top: 0, bottom: 0}}>
+        {/* <motion.div drag="y"  dragElastic={{bottom:1}} dragPropagation onDragEnd={onDrag} dragConstraints={{ top: 0, bottom: 0 }} style={{top: 0, bottom: 0}}> */}
         <DrawerContent maxHeight={"90vh"} borderTopLeftRadius={"16px"} borderTopRightRadius={"16px"}>
           <DrawerCloseButton />
          <ButtonGroup isAttached justifyContent={"center"} marginTop={"20px"}>
@@ -1265,7 +1265,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
          
          </Flex>
         </DrawerContent>
-        </motion.div>
+        {/* </motion.div> */}
       </Drawer>
         </>
     )
