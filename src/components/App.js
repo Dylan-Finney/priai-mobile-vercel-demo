@@ -176,31 +176,35 @@ function App({username, aiName}){
       //   {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Productivity Coach", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."}
         
       // ], lastAccess: new Date(1683999993000).toLocaleDateString()},
-      // {title: "Example Errors", messages: [
-      //   {
-      //     "speaker": "User",
-      //     "message": "What is the capital of Japan?"
-      //   },
-      //   {
-      //     "speaker": "Personal Assistant",
-      //     "message": "Pri-AI encountered the following error:",
-      //     "error": {
-      //       "status": 401,
-      //       "statusText": "Unauthorized"
-      //     }
-      //   },{
-      //     "speaker": "User",
-      //     "message": "What is the capital of France?"
-      //   },
-      //   {
-      //     "speaker": "Personal Assistant",
-      //     "message": "Pri-AI encountered the following error:",
-      //     "error": {
-      //       "status": 401,
-      //       "statusText": "Unauthorized"
-      //     }
-      //   }
-      // ], lastAccess: new Date(1683999993000).toLocaleDateString()},
+      {title: "Example Errors", messages: [
+        {
+          "speaker": "User",
+          "message": "What is the capital of Japan?",
+          "time": 1683999993000,
+        },
+        {
+          "speaker": "Personal Assistant",
+          "message": "Pri-AI encountered the following error:",
+          "time": 1683999993000,
+          "error": {
+            "status": 401,
+            "statusText": "Unauthorized"
+          }
+        },{
+          "speaker": "User",
+          "message": "What is the capital of France?",
+          "time": 1683999993000,
+        },
+        {
+          "speaker": "Personal Assistant",
+          "message": "Pri-AI encountered the following error:",
+          "time": 1683999993000,
+          "error": {
+            "status": 401,
+            "statusText": "Unauthorized"
+          }
+        }
+      ], lastAccess: new Date(1683999993000).toLocaleDateString()},
       
     ])
     
@@ -655,7 +659,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                 return (
                                     <>
                                     {messageIndex===0 && (
-                                      <Flex flexDirection={"row"} alignItems={"center"} marginTop={"16px"}>
+                                      <Flex flexDirection={"row"} alignItems={"center"} margin={"16px 0px"}>
                                       <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
                                       <Text fontWeight={500} color={"#475467"} padding={"0px 10px"}>Today</Text>
                                       <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
@@ -831,7 +835,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                             {console.log("retry2", {length: conversations[index]?.messages.length , index })}
                             {
                               index === -1 ? (
-                                      <Flex flexDirection={"row"} alignItems={"center"} marginTop={"16px"}>
+                                      <Flex flexDirection={"row"} alignItems={"center"} margin={"16px 0px"}>
                                       <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
                                       <Text fontWeight={500} color={"#475467"} padding={"0px 10px"}>Today</Text>
                                       <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
@@ -841,7 +845,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                 <>
                                   {
                                     conversations[index].messages.length === 0 && (
-                                      <Flex flexDirection={"row"} alignItems={"center"} marginTop={"16px"}>
+                                      <Flex flexDirection={"row"} alignItems={"center"} margin={"16px 0px"}>
                                       <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
                                       <Text fontWeight={500} color={"#475467"} padding={"00px 10px"}>Today</Text>
                                       <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
