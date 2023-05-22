@@ -254,8 +254,8 @@ function App({username, aiName}){
           {
             conversations.length > 0 ? (
               <>
-              <Input marginTop={"20px"} placeholder="Search threads" value={threadFilter} onChange={(e)=>{setThreadFilter(e.target.value)}}/>
-              <Text>Recent</Text>
+              <Input marginTop={"20px"} marginBottom={"16px"} placeholder="Search threads" value={threadFilter} onChange={(e)=>{setThreadFilter(e.target.value)}}/>
+              <Text marginBottom={"8px"}>Recent</Text>
               {
                   conversations.filter((conversation)=>{
                     if (conversation.title.toLowerCase().includes(threadFilter.toLowerCase())){
@@ -1447,8 +1447,8 @@ const Thread = ({
         <ThreadIcon/>
         </Box>
         <Flex paddingLeft={"10px"} flexDir={"column"} overflow={"hidden"}>
-        <Text fontWeight={600} fontSize={"12px"} textOverflow={"ellipsis"} overflow={"hidden"} whiteSpace={"nowrap"}>{message.title}</Text>
-        <Text fontWeight={400} fontSize={"10px"}>{message.lastAccess || "01/01/1990"}</Text>
+        <Text fontWeight={600} fontSize={"14px"} textOverflow={"ellipsis"} overflow={"hidden"} whiteSpace={"nowrap"}>{message.title}</Text>
+        <Text fontWeight={400} fontSize={"12px"}>{message.lastAccess || "01/01/1990"}</Text>
         </Flex>
         <Spacer/>
         {
