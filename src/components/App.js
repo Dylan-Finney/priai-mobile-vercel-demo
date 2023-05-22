@@ -655,10 +655,10 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                 return (
                                     <>
                                     {messageIndex===0 && (
-                                      <Flex flexDirection={"row"} alignItems={"center"}>
-                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
-                                      <Text>Today</Text>
-                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+                                      <Flex flexDirection={"row"} alignItems={"center"} marginTop={"16px"}>
+                                      <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
+                                      <Text fontWeight={500} color={"#475467"} padding={"0px 10px"}>Today</Text>
+                                      <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
 
                                       </Flex>
                                     )}
@@ -831,20 +831,20 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                             {console.log("retry2", {length: conversations[index]?.messages.length , index })}
                             {
                               index === -1 ? (
-                                      <Flex flexDirection={"row"} alignItems={"center"}>
-                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
-                                      <Text>Today</Text>
-                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+                                      <Flex flexDirection={"row"} alignItems={"center"} marginTop={"16px"}>
+                                      <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
+                                      <Text fontWeight={500} color={"#475467"} padding={"0px 10px"}>Today</Text>
+                                      <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
 
                                       </Flex>
                               ) : (
                                 <>
                                   {
                                     conversations[index].messages.length === 0 && (
-                                      <Flex flexDirection={"row"} alignItems={"center"}>
-                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
-                                      <Text>Today</Text>
-                                      <Box borderBottom={"2px solid #000"} width={"100%"}></Box>
+                                      <Flex flexDirection={"row"} alignItems={"center"} marginTop={"16px"}>
+                                      <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
+                                      <Text fontWeight={500} color={"#475467"} padding={"00px 10px"}>Today</Text>
+                                      <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
 
                                       </Flex>
                                     )
@@ -1132,12 +1132,6 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
           markup="#__id__"
         />
       </MentionsInput>
-                        {/* <Input style={{flex: 1,
-    fontSize: 16,
-    color: '#333',}} 
-    isDisabled={loading}
-    value={prompt} onChange={(e)=>{setPrompt(e.target.value)}} paddingLeft={"8px"} placeholder="How did I sleep last night?">
-                        </Input> */}
                         <Flex style={{flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 4}}>
@@ -1332,98 +1326,6 @@ const ChatIconsSwiper = ({onClickAgent}) => {
           </SwiperSlide>) 
         })
       }
-      {/* <SwiperSlide style={{padding: "10px"}}>
-        <Box  position={"relative"} width={"fit-content"} > 
-        <Image
-        src="/AIAgentSkiCoachAvatar.png"
-        width={50}
-        height={50}
-        alt="Picture of the skicoach"
-        >
-          
-        </Image>
-        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
-        <AgentSkiCoachIcon/>
-
-        </Box>
-        </Box>
-        
-      </SwiperSlide>
-      <SwiperSlide style={{padding: "10px"}}>
-        <Box  position={"relative"} width={"fit-content"} > 
-        <Image
-        src="/AIAgentTrainerAvatar.png"
-        width={50}
-        height={50}
-        alt="Picture of the skicoach"
-        >
-          
-        </Image>
-        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
-        <AgentTrainerIcon/>
-
-        </Box>
-        </Box>
-        
-      </SwiperSlide>
-      <SwiperSlide style={{padding: "10px"}}>
-        <Box  position={"relative"} width={"fit-content"} > 
-        <Image
-        src="/AIAgentBasketballCoachAvatar.png"
-        width={50}
-        height={50}
-        alt="Picture of the Basketball coach"
-        >
-          
-        </Image>
-        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
-        <AgentBasketballCoachIcon/>
-
-        </Box>
-        </Box>
-        
-      </SwiperSlide>
-      <SwiperSlide style={{padding: "10px"}}>
-        <Box  position={"relative"} width={"fit-content"} > 
-        <Image
-        src="/AIAgentNutritionistAvatar.png"
-        width={50}
-        height={50}
-        alt="Picture of the Nutritionist coach"
-        >
-          
-        </Image>
-        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
-        <AgentNutritionistIcon/>
-
-        </Box>
-        </Box>
-        
-      </SwiperSlide>
-      <SwiperSlide style={{padding: "10px"}}>
-        <Box  position={"relative"} width={"fit-content"} > 
-        <Image
-        src="/AIAgentSleepCoachAvatar.png"
-        width={50}
-        height={50}
-        alt="Picture of the Sleep coach"
-        >
-          
-        </Image>
-        <Box position={"absolute"} zIndex={2} bottom={-2} right={-2}>
-        <AgentSleepCoachIcon/>
-
-        </Box>
-        </Box>
-        
-      </SwiperSlide> */}
-
-      {/* <SwiperSlide><Image
-      src="/AgentAvatar3.png"
-      width={50}
-      height={50}
-        alt="Picture of the author"
-      /></SwiperSlide> */}
      
     </Swiper>
   )
@@ -1489,34 +1391,6 @@ const Thread = ({
                 </Box>
               )
             }
-           
-            
-
-             {/* <Grid width={"fit-content"} templateColumns='repeat(5, 1fr)'>
-             {
-                mentionedAgents.slice(0,3).map((speaker, agentIndex)=>{
-                  return (
-                    <>
-                    <GridItem w='50px' h='33px' marginLeft={agentIndex > 0 ? `${-25 * agentIndex}px` : "unset"}>
-                      <Image
-                      src={`/${agentsImages[speaker]}`}
-                      width={35}
-                      height={35}
-
-                      />
-                    </GridItem>
-                    </>
-                  )
-                })
-              }
-              {
-                mentionedAgents.length > 3 && (
-                  <>
-                    <GridItem w='50px' h='33px' bg='blue.500' border={"1px solid red"} marginLeft={`${-25 * 3}px`}></GridItem>
-                    </>
-                )
-              }
-            </Grid> */}
             </>
           )
         }
