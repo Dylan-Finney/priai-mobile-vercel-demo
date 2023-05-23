@@ -177,35 +177,35 @@ function App({username, aiName}){
       //   {"speaker": "User", message: "How did I sleep last night? #Oura"}, {"speaker": "Productivity Coach", message: "Based on your Oura sleep data available in your private data cloud, you slept for 6 hours and 45 minutes last night. Your sleep consisted of 1 hour and 50 minutes of deep sleep, 3 hours and 30 minutes of light sleep, and 1 hour and 25 minutes of REM sleep. Your sleep efficiency was 88%, which is considered good. It seems like you had a decent night's sleep, but you might want to aim for a bit more rest tonight to ensure optimal recovery."}
         
       // ], lastAccess: new Date(1683999993000).toLocaleDateString()},
-      {title: "Example Errors", messages: [
-        {
-          "speaker": "User",
-          "message": "What is the capital of Japan?",
-          "time": 1683999993000,
-        },
-        {
-          "speaker": "Personal Assistant",
-          "message": "Pri-AI encountered the following error:",
-          "time": 1683999993000,
-          "error": {
-            "status": 401,
-            "statusText": "Unauthorized"
-          }
-        },{
-          "speaker": "User",
-          "message": "What is the capital of France?",
-          "time": 1683999993000,
-        },
-        {
-          "speaker": "Personal Assistant",
-          "message": "Pri-AI encountered the following error:",
-          "time": 1683999993000,
-          "error": {
-            "status": 401,
-            "statusText": "Unauthorized"
-          }
-        }
-      ], lastAccess: new Date(1683999993000).toLocaleDateString()},
+      // {title: "Example Errors", messages: [
+      //   {
+      //     "speaker": "User",
+      //     "message": "What is the capital of Japan?",
+      //     "time": 1683999993000,
+      //   },
+      //   {
+      //     "speaker": "Personal Assistant",
+      //     "message": "Pri-AI encountered the following error:",
+      //     "time": 1683999993000,
+      //     "error": {
+      //       "status": 401,
+      //       "statusText": "Unauthorized"
+      //     }
+      //   },{
+      //     "speaker": "User",
+      //     "message": "What is the capital of France?",
+      //     "time": 1683999993000,
+      //   },
+      //   {
+      //     "speaker": "Personal Assistant",
+      //     "message": "Pri-AI encountered the following error:",
+      //     "time": 1683999993000,
+      //     "error": {
+      //       "status": 401,
+      //       "statusText": "Unauthorized"
+      //     }
+      //   }
+      // ], lastAccess: new Date(1683999993000).toLocaleDateString()},
       
     ])
     
@@ -337,6 +337,13 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
     const [loading, setLoading] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure()
 
+    const [mentionedAgents, setMentionedAgents] = useState([...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").sort((a,b)=>{
+      const lastIndexA = conversations[index]?.messages.map(message=>message.speaker).lastIndexOf(a)
+      const lastIndexB = conversations[index]?.messages.map(message=>message.speaker).lastIndexOf(b)
+      console.log({speakerA: a.speaker, speakerB: b.speaker, lastIndexA, lastIndexB})
+      return lastIndexA - lastIndexB
+    }))
+
     
 
     const [drawerTab, setDrawerTab] = useState(0)
@@ -383,7 +390,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
         return (
           <>
           <BasicIntro/>
-          🏀 I am your Basketball Coach and I can't wait to share my knowledge and insights with you. If you are unsure how to use me, ask me how can I help you.
+          🏀 I am your Basketball Coach. Let's take your game to the next level. If you are unsure how to use me, ask me how can I help you.
           </> 
         )
       case "Nutritionist":
@@ -640,7 +647,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                 speaker = agents[agent[1].toLowerCase()]
               }
                 if (index === -1) {
-                  const newIndex = newConversation([{"speaker": username, message: promptProcessed},{"speaker": speaker, message: "Pri-AI encountered the following error:", error: e}])
+                  const newIndex = newConversation([{"speaker": selectedAgent , time: timeSent, ignore: true, intro: true},{"speaker": username, message: promptProcessed},{"speaker": speaker, message: "Pri-AI encountered the following error:", error: e}])
                   setIndex(newIndex)
               } else {
                 var conversationCopy = conversations
@@ -660,6 +667,15 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
       var element = document.getElementById('chatlog');
       element.scrollTop = element.scrollHeight;
     },[conversations[index]?.messages, loading])
+
+    useEffect(()=>{
+      setMentionedAgents([...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").sort((a,b)=>{
+        const lastIndexA = conversations[index]?.messages.map(message=>message.speaker).lastIndexOf(a)
+        const lastIndexB = conversations[index]?.messages.map(message=>message.speaker).lastIndexOf(b)
+        console.log({speakerA: a.speaker, speakerB: b.speaker, lastIndexA, lastIndexB})
+        return lastIndexA - lastIndexB
+      }))
+    },[conversations[index]?.messages])
 
     useEffect(()=>{
       if (selectedAgent !== "" && selectedAgent !== "Personal Assistant") { setPrompt(`@${Object.keys(agents).find((agent)=>{
@@ -697,9 +713,30 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                           <Box onClick={()=>{goBack()}} cursor={"pointer"} padding={"5px"}>
                             <Back/>
                           </Box>
+                          {console.log({mentionedAgents})}
+                          {
+                              mentionedAgents.slice(-3).reverse().map((speaker, agentIndex)=>{
+                                return (
+                                  <>
+                                  <Box width={"32px"} height={"32px"} backgroundColor={"white"} border={"1px solid white"} borderRadius={"20px"} marginLeft={agentIndex > 0 ? "-10px" : "unset"}>
+                                    {agentsImages[speaker]?.threadIcon ? agentsImages[speaker].threadIcon  :<AIAvatar scale={2}/>}
+                                  </Box>
+                                  </>
+                                )
+                              })
+                          }
+                          {
+                            mentionedAgents.length > 3 && (
+                              <Box width={"32px"} height={"32px"} backgroundColor={"white"} border={"2px solid white"}  borderRadius={"20px"}  marginLeft={"-10px"} alignItems={"center"} justifyContent={"center"}>
+                                <Flex backgroundColor={"#F2F4F7"} height={"95%"} width={"95%"}  borderRadius={"200px"} textAlign={"center"} padding={"5px 0"}>
+                                  <Text color={"#475467"} fontSize={"12px"} fontWeight={500} width={"32px"} height={"32px"} textAlign={"center"} alignItems={"center"} marginTop={"auto"}>+{mentionedAgents.length - 3}</Text>
+                                </Flex>
+                              </Box>
+                            )
+                          }
                           <Flex flexDir={"column"} paddingLeft={"10px"} overflow={"hidden"}>
                           <Text fontWeight={600} fontSize={"12px"} overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"} >{conversations[index]?.title}</Text>
-                          <Text fontWeight={400} fontSize={"10px"} overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"} >{[...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").join(", ")}</Text>
+                          <Text fontWeight={400} fontSize={"10px"} overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"}  >{[...mentionedAgents].reverse().join(", ")}</Text>
                           <Text></Text>
 
                           </Flex>
@@ -844,7 +881,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                                 fontWeight: 400,
                                                 alignSelf: "end"
                                               }}>
-                                              {formatTimestamp(Date.now())}
+                                              {formatTimestamp(conversations[index]?.messages[0].time)}
                                             </Text>
                                           )
                                         }
@@ -1671,9 +1708,9 @@ const Thread = ({
             {
               mentionedAgents.length > 3 && (
                 <Box width={"32px"} height={"32px"} backgroundColor={"white"} border={"2px solid white"}  borderRadius={"20px"}  marginLeft={"-10px"} alignItems={"center"} justifyContent={"center"}>
-                  <Box backgroundColor={"#F2F4F7"} height={"95%"} width={"95%"}  borderRadius={"200px"} textAlign={"center"} padding={"5px 0"}>
-                    <Text color={"#475467"} fontSize={"12px"} fontWeight={500} marginTop={"auto"}>+{mentionedAgents.length - 3}</Text>
-                  </Box>
+                  <Flex backgroundColor={"#F2F4F7"} height={"95%"} width={"95%"}  borderRadius={"200px"} textAlign={"center"} padding={"5px 0"}>
+                    <Text color={"#475467"} fontSize={"12px"} width={"32px"}  height={"32px"}fontWeight={500} marginTop={"auto"}>+{mentionedAgents.length - 3}</Text>
+                  </Flex>
                 </Box>
               )
             }
