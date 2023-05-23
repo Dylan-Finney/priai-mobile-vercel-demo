@@ -1,4 +1,5 @@
-import { Box, Button, ButtonGroup, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Input, SlideFade, Spacer, Spinner, Text, useDisclosure } from "@chakra-ui/react";
+/* eslint-disable react/no-unescaped-entities */
+import { Box, Button, ButtonGroup, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, GridItem, Input, SlideFade, Spacer, Spinner, Text, useDisclosure, useTimeout } from "@chakra-ui/react";
 import { motion, PanInfo } from 'framer-motion';
 import Logo from "../assets/logo"
 import LogoMark from "../assets/logomark";
@@ -212,7 +213,7 @@ function App({username, aiName}){
     
     const newConversations=(newMessages)=>{
         var index = conversations.length
-        setConversations([...conversations, {title: newMessages[0].message, messages: newMessages, lastAccess: new Date().toLocaleDateString()}])
+        setConversations([...conversations, {title: newMessages.filter((message)=>!message.ignore)[0].message, messages: newMessages, lastAccess: new Date().toLocaleDateString()}])
         return index
       }
     const array = [1,1,1,1]
@@ -291,7 +292,7 @@ function App({username, aiName}){
           }
        
        <Flex style={{ zIndex: 99999, position: 'fixed', right: 10, bottom: "0.5vh", paddingBottom: "8%"}}>
-          <Button onClick={()=>{setInnerScreen(true); setIndex(-1) }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>
+          <Button onClick={()=>{setInnerScreen(true); setIndex(-1); setSelectedAgent("Personal Assistant") }} style={{padding: "8px 14px", background: "#0E9384", border: "1px solid #0E9384", boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);", borderRadius: "100px", color: "#fff", fontWeight: 600, fontSize: "14px"}}>
             <NewThreadIcon/>
             <Text paddingLeft={"5px"}>New Thread</Text>
             </Button>
@@ -359,6 +360,62 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
     setPrompt(newValue);
   };
 
+  
+  const agentIntroductoryText = (agent) => {
+    const BasicIntro = () => {
+      return (
+        <>
+  👋 Welcome to PriAI's demo mode by Prifina!<br/>
+  Demo mode is designed to simulate having access to all of your personal data and information available in your private data cloud, along with data from various common applications and services typically used by consumers. This includes your emails, social media accounts, wearables, calendar, smart home devices, and other public data sources. By combining these sources, we're able to provide you with the best possible answers.<br/>
+  The full details on the abilities of Pri-AI can be found <span onClick={onOpen}  style={{cursor: "pointer",fontWeight: "bold", textDecorationLine: "underline"}}>here in the help sheet</span>. Keep in mind, demo mode does not have access to any of your data the real mode may have, nor any data not explicitly told. <br/><br/>
+  </>
+  )
+    }
+    switch(agent){
+      case "Personal Assistant": 
+        return (
+          <>
+          <BasicIntro/>
+          🤝 I am your Personal Assistant. Think of me as your very own personal AI-powered butler, available 24/7 to assist you. If you are unsure how to use me, ask me how can I help you.
+          </> 
+        )
+      case "Basketball Coach":
+        return (
+          <>
+          <BasicIntro/>
+          🏀 I am your Basketball Coach and I can't wait to share my knowledge and insights with you. If you are unsure how to use me, ask me how can I help you.
+          </> 
+        )
+      case "Nutritionist":
+        return (
+          <>
+          <BasicIntro/>
+          🥦 I am your Nutritionist. I have the knowledge and expertise to guide you towards a balanced and healthy lifestyle. If you are unsure how to use me, ask me how can I help you.
+          </> 
+        )
+      case "Personal trainer":
+        return (
+          <>
+          <BasicIntro/>
+          💪 I am your Trainer, your go-to expert for all things fitness and wellness! If you are unsure how to use me, ask me how can I help you.
+          </> 
+        )
+      case "Ski Coach":
+        return (
+          <>
+          <BasicIntro/>
+          ⛷️ I am your Ski Coach. I'm your go-to expert for slalom skiing, ready to help you carve your way to success on the slopes! If you are unsure how to use me, ask me how can I help you.
+          </> 
+        )
+      case "Sleep Coach":
+        return (
+          <>
+          <BasicIntro/>
+          😴 I am your Sleep Coach. Need better sleep? Consider me your personal dream catcher. If you are unsure how to use me, ask me how can I help you.
+          </> 
+        )
+    }
+  }
     
 
     const submit = async (retryIndex = null) => {
@@ -484,7 +541,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                   body: JSON.stringify({
                     // "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - (retryIndex === true ? 14 : 12) : 0,retryIndex === true ? conversations[index]?.messages.length-2 : undefined ) || [],
                     "chat": conversations[index]?.messages.filter((message, messageIndex)=>{
-                      if (conversations[index]?.messages[messageIndex].error){
+                      if (conversations[index]?.messages[messageIndex].error || conversations[index]?.messages[messageIndex].ignore){
                         return false
                       }
                       if (messageIndex === conversations[index]?.messages.length - 1){
@@ -564,11 +621,12 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                 speaker = agents[agent[1].toLowerCase()]
               }
                 if (index === -1) {
-                  const newIndex = newConversation([{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": speaker, message: answer, time: timeReceived}])
+                  const newIndex = newConversation([{"speaker": selectedAgent , time: timeSent, ignore: true, intro: true},{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": speaker, message: speaker === selectedAgent ? answer : answer += "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.", time: timeReceived}])
                   setIndex(newIndex)
               } else {
+                const newSpeaker = !(conversations[index].messages.some(message=>message.speaker === speaker))
                 var conversationCopy = conversations
-                conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": speaker, message: answer, time: timeReceived}])
+                conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": speaker, message: newSpeaker ? answer += "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination." : answer, time: timeReceived}])
                 setConversations(conversationCopy)
                 setPrompt("")
               }
@@ -604,10 +662,12 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
     },[conversations[index]?.messages, loading])
 
     useEffect(()=>{
-      if (selectedAgent !== "") setPrompt(`@${Object.keys(agents).find((agent)=>{
+      if (selectedAgent !== "" && selectedAgent !== "Personal Assistant") { setPrompt(`@${Object.keys(agents).find((agent)=>{
         // console.log({find: agents[agent], selectedAgent})
         return agents[agent] === selectedAgent
-      })} `)
+      })} `) }else {
+        setPrompt("")
+      }
       
     }, [selectedAgent])
     return (
@@ -649,16 +709,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                     {/* Chatlog */}
                         <Flex id="chatlog" flexGrow={1} style={{backgroundColor: "#fcfcfd",whiteSpace: "pre-wrap","overflow-y": "scroll", "scroll-behavior": "smooth", "border-left": "1px solid #eaecf0", "border-top": "1px solid #eaecf0", "display": "flex", "flexDirection": "column"}}>
                             <div style={{marginTop:"auto", height: "100%"}}/>
-                           
-                        {
-                            conversations[index]?.messages.map((a, messageIndex)=>{
-                                console.log("a",a)
-                                const type = a.speaker === username ? "entry": ""
-                                // const title ="Title"
-                                // const time = "Thursday 6:30pm"
-                                return (
-                                    <>
-                                    {messageIndex===0 && (
+                            {(
                                       <Flex flexDirection={"row"} alignItems={"center"} margin={"16px 0px"}>
                                       <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
                                       <Text fontWeight={500} color={"#475467"} padding={"0px 10px"}>Today</Text>
@@ -666,6 +717,231 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
 
                                       </Flex>
                                     )}
+                                    {console.log({index})}
+                                    {index === -1 ? (
+                                      <Flex
+                                      // key={messageIndex}
+                                      style={{
+                                        paddingTop: 32,
+                                        paddingBottom: 32,
+                                        paddingLeft: 16,
+                                        paddingRight: 16,
+                                        flex: 1,
+                                        backgroundColor: "white",
+                                        flexDirection: "column"
+                                      }}>
+                                        {
+                                         (
+                                            <Text
+                                              style={{
+                                                fontSize: 12,
+                                                color: '#475467',
+                                                fontWeight: 400,
+                                                alignSelf: "end"
+                                              }}>
+                                              {formatTimestamp(Date.now())}
+                                            </Text>
+                                          )
+                                        }
+                                        <Flex flexDir={"row"}>
+                                          <Box>
+                                            {agentsImages[selectedAgent]?.chatIcon ? agentsImages[selectedAgent]?.chatIcon :  <AIAvatar/>}
+                                          </Box>
+                                        <Flex
+                                          width={"100%"}
+                                          style={{
+                                            marginLeft: "8px",
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingBottom: "4px",
+                                            justifyContent: 'space-between',
+                                            borderBottom: "1px solid #EAECF0",
+                                            alignItems:"center"
+                                          }}>
+                                          <Flex width={"100%"}>
+                                            
+                                            <Text
+                                            height={"fit-content"}
+                                              style={{
+                                                fontSize: 16,
+                                                color: '#344054',
+                                                fontWeight: 500,
+                                              }}>
+                                              {selectedAgent === "Personal Assistant" ? (aiName !== "" ? aiName : `${username}'s personal AI assistant`) : selectedAgent}
+                                            </Text>
+                                          <Spacer/>
+                                          {
+                                          (
+                                            <Flex alignItems={"center"} gap={"5px"}>
+                                            {
+                                              selectedAgent === "Personal Assistant" ? (
+                                                <Text
+                                                style={{
+                                                  fontSize: 10,
+                                                  color: '#107569',
+                                                  fontWeight: 500,
+                                                  backgroundColor: "#F0FDF9",
+                                                  padding: "3px",
+                                                  height: "fit-content"
+                                                }}>
+                                                PRI AI
+                                              </Text>
+                                              ) : (
+                                                <Text
+                                                style={{
+                                                  fontSize: 10,
+                                                  color: '#5925DC',
+                                                  fontWeight: 500,
+                                                  backgroundColor: "#F4F3FF",
+                                                  padding: "3px",
+                                                  height: "fit-content"
+                                                }}>
+                                                AGENT
+                                              </Text>
+                                              )
+                                            }
+                                            </Flex>
+                                          )
+                                          }
+
+                                        
+                                          </Flex>
+                                          </Flex>
+                                      </Flex>
+                                      <Flex flexDir={"column"} style={{marginLeft: 36,
+                                          marginTop: 10}}>
+                                      <Text
+                                        style={{
+                                          fontSize: 16,
+                                          color: '#475467',
+                                          fontWeight: 400,
+                                          
+                                        }}>{agentIntroductoryText(selectedAgent)}
+                                      </Text>
+                                      </Flex>
+                                    </Flex>
+                                    ):(
+                                      <>
+                                      {
+                                        conversations[index]?.messages[0]?.intro && (
+                                          <Flex
+                                      // key={messageIndex}
+                                      style={{
+                                        paddingTop: 32,
+                                        paddingBottom: 32,
+                                        paddingLeft: 16,
+                                        paddingRight: 16,
+                                        flex: 1,
+                                        backgroundColor: "white",
+                                        flexDirection: "column"
+                                      }}>
+                                        {
+                                         (
+                                            <Text
+                                              style={{
+                                                fontSize: 12,
+                                                color: '#475467',
+                                                fontWeight: 400,
+                                                alignSelf: "end"
+                                              }}>
+                                              {formatTimestamp(Date.now())}
+                                            </Text>
+                                          )
+                                        }
+                                        <Flex flexDir={"row"}>
+                                          <Box>
+                                            {agentsImages[conversations[index].messages[0].speaker]?.chatIcon ? agentsImages[conversations[index].messages[0].speaker]?.chatIcon :  <AIAvatar/>}
+                                          </Box>
+                                        <Flex
+                                          width={"100%"}
+                                          style={{
+                                            marginLeft: "8px",
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingBottom: "4px",
+                                            justifyContent: 'space-between',
+                                            borderBottom: "1px solid #EAECF0",
+                                            alignItems:"center"
+                                          }}>
+                                          <Flex width={"100%"}>
+                                            
+                                            <Text
+                                            height={"fit-content"}
+                                              style={{
+                                                fontSize: 16,
+                                                color: '#344054',
+                                                fontWeight: 500,
+                                              }}>
+                                              {conversations[index].messages[0].speaker === "Personal Assistant" ? (aiName !== "" ? aiName : `${username}'s personal AI assistant`) : conversations[index].messages[0].speaker}
+                                            </Text>
+                                          <Spacer/>
+                                          {
+                                          (
+                                            <Flex alignItems={"center"} gap={"5px"}>
+                                            {
+                                              conversations[index].messages[0].speaker === "Personal Assistant" ? (
+                                                <Text
+                                                style={{
+                                                  fontSize: 10,
+                                                  color: '#107569',
+                                                  fontWeight: 500,
+                                                  backgroundColor: "#F0FDF9",
+                                                  padding: "3px",
+                                                  height: "fit-content"
+                                                }}>
+                                                PRI AI
+                                              </Text>
+                                              ) : (
+                                                <Text
+                                                style={{
+                                                  fontSize: 10,
+                                                  color: '#5925DC',
+                                                  fontWeight: 500,
+                                                  backgroundColor: "#F4F3FF",
+                                                  padding: "3px",
+                                                  height: "fit-content"
+                                                }}>
+                                                AGENT
+                                              </Text>
+                                              )
+                                            }
+                                            </Flex>
+                                          )
+                                          }
+
+                                        
+                                          </Flex>
+                                          </Flex>
+                                      </Flex>
+                                      <Flex flexDir={"column"} style={{marginLeft: 36,
+                                          marginTop: 10}}>
+                                      <Text
+                                        style={{
+                                          fontSize: 16,
+                                          color: '#475467',
+                                          fontWeight: 400,
+                                          
+                                        }}>{agentIntroductoryText(conversations[index].messages[0].speaker)}
+                                      </Text>
+                                      </Flex>
+                                    </Flex>
+                                        )
+                                      }
+                                      </>
+                                    )}
+                                    
+                             
+                           
+                        {
+                            conversations[index]?.messages.filter((message)=>!message.ignore).map((a, messageIndex)=>{
+                                console.log("a",a)
+                                const type = a.speaker === username ? "entry": ""
+                                // const title ="Title"
+                                // const time = "Thursday 6:30pm"
+                                return (
+                                    <>
+                                    
+
                                     <Flex
                                       key={messageIndex}
                                       style={{
@@ -1160,7 +1436,10 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
           {
             drawerTab === 0 && (
               <>
-              <Text fontSize={"16px"} fontWeight={600} paddingBottom={"10px"}>Specialist agents</Text>
+              <Flex flexDir={"row"} gap={"16px"} alignItems={"center"}paddingBottom={"10px"}>
+              <Text fontSize={"16px"} fontWeight={600}  >Specialist agents</Text>
+              <Text paddingBottom={"10px"} alignItems={"center"} style={{color: "#107569", fontWeight: "bold", fontSize: "12px", backgroundColor: "#F0FDF9", padding: "2px 8px", borderRadius: "16px" }}>@agent</Text>
+              </Flex>
               <Text fontSize={"14px"} color={"#475467"}>Use Pri-AI to talk to your connected data.</Text>
               <Box minHeight={"1px"} width={"100%"} backgroundColor={"#EAECF0"} margin={"10px 0px"}/>
               <Flex flexDirection={"column"} overflowY={"scroll"} gap={"16px"}>
@@ -1203,11 +1482,14 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
           {
             drawerTab === 1 && (
               <>
-              <Flex flexDirection={"column"} overflowY={"scroll"} gap={"10px"}>
-              <Text fontSize={"16px"} fontWeight={600}>Live data promping</Text>
+              <Flex flexDirection={"column"} overflowY={"scroll"} >
+              <Flex flexDir={"row"} gap={"16px"} alignItems={"center"} paddingBottom={"10px"}>
+              <Text fontSize={"16px"} fontWeight={600}  >Live data prompting</Text>
+              <Text paddingBottom={"10px"} alignItems={"center"} style={{color: "#107569", fontWeight: "bold", fontSize: "12px", backgroundColor: "#F0FDF9", padding: "2px 8px", borderRadius: "16px" }}>#source</Text>
+              </Flex>
               <Text fontSize={"14px"} color={"#475467"}>Use Pri-AI to talk to your connected data.</Text>
               <Box minHeight={"1px"} width={"100%"} backgroundColor={"#EAECF0"} margin={"10px 0px"}></Box>
-              <Flex flexDirection={"column"}  gap={"16px"}>
+              <Flex flexDirection={"column"}  gap={"16px"} paddingBottom={"10px"}>
                 <Text color={"#101828"} fontWeight={500}>#+source name</Text>
                 <Flex flexDir={"column"} gap={"10px"} backgroundColor={"#F9FAFB"} borderRadius={"8px"} padding={"16px"}>
                   <Text color={"#101828"} fontWeight={600}>Try this</Text>
@@ -1300,7 +1582,7 @@ const ChatIconsSwiper = ({onClickAgent}) => {
       onSwiper={(swiper) => console.log(swiper)}
     >
       <SwiperSlide style={{padding: "10px"}}>
-          <Box cursor={"pointer"} position={"relative"} width={"fit-content"} onClick={()=>{onClickAgent("")}}> 
+          <Box cursor={"pointer"} position={"relative"} width={"fit-content"} onClick={()=>{onClickAgent("Personal Assistant")}}> 
           <AIAvatar scale={3}/>
           </Box>
           
