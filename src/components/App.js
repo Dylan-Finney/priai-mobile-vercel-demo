@@ -608,12 +608,11 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                 var answer = ""
                 while (!done) {
                   const { value, done: doneReading } = await reader.read();
-                  console.log("value",value)
                   done = doneReading;
                   const chunkValue = decoder.decode(value);
-  
+                  console.log({oldAnswer: answer, newAnswer: answer + chunkValue, chunkValue, done})
                   answer = answer + chunkValue
-                  console.log(answer)
+                  
                 }
                 const timeReceived = Date.now()
                 if (response.status > 399) throw JSON.parse(answer)
@@ -1146,7 +1145,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                         {loading && (
                             <>
                             {console.log("retry2", {length: conversations[index]?.messages.length , index })}
-                            {
+                            {/* {
                               index === -1 ? (
                                       <Flex flexDirection={"row"} alignItems={"center"} margin={"16px 0px"}>
                                       <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
@@ -1168,7 +1167,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                   }
                                 </>
                               )
-                            }
+                            } */}
                             <Flex
                                       style={{
                                         paddingTop: 32,
@@ -1597,6 +1596,7 @@ const ChatIconsSwiper = ({onClickAgent}) => {
       breakpoints={{
         0: {
           slidesPerView: 2
+          
         },
         320: {
           slidesPerView: 4
