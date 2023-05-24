@@ -976,10 +976,25 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                 // const time = "Thursday 6:30pm"
                                 return (
                                     <>
-                                    
-
                                     <Flex
                                       key={messageIndex}
+                                      onDoubleClick={()=>{
+                                        if (type !== "entry" && a.speaker !== "Personal Assistant"){
+                                          const findAgent = (obj, value) => {
+                                            const keys = Object.keys(obj);
+    
+                                            for (let i = 0; i < keys.length; i++) {
+                                              const key = keys[i];
+                                              if (obj[key] === value) {
+                                                return key; // Return the first matching property name
+                                              }
+                                            }
+                                            
+                                            return ""; // Return null if no matching property is found
+                                          }
+                                          setPrompt(prompt + `@${findAgent(agents, a.speaker)} `)
+                                        }
+                                        ;}}
                                       style={{
                                         paddingTop: 32,
                                         paddingBottom: 32,
