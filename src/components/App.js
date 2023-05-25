@@ -545,9 +545,9 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
 
             const agent = promptProcessed.match(/@(\w+)/)
             var speaker = "Personal Assistant"
-            if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
+            if (agent && Object.keys(agents).includes(agent[1].toLowerCase()) || speaker === selectedAgent && (mentionedAgents.length === 1 || index === -1 )){
               console.log("Route 1")
-              speaker = agents[agent[1].toLowerCase()]
+              speaker = agent !== null ? agents[agent[1].toLowerCase()] : speaker
               const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: {
@@ -658,7 +658,8 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                     }
                   }).slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0 ) || [],
                   "prompt": promptProcessed,
-                  "agents": index > -1 ? [...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User" && speaker !== "Personal Assistant" ) : [selectedAgent]
+                  "agents": index > -1 ? [...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User" && speaker !== "Personal Assistant" ) : [selectedAgent],
+                  username
               })
              })
               
@@ -683,6 +684,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
              console.log(chunkValue)
              
            }
+           if (response2.status > 399) throw JSON.parse(answerAgentSelection)
            answerAgentSelection = answerAgentSelection.trim()
            if (answerAgentSelection === "None") answerAgentSelection = "Personal Assistant"
            setCurrentBestAgent(answerAgentSelection)
@@ -905,7 +907,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                       <>
                                       {
                                         conversations[index]?.messages[0]?.intro && (
-                                          <Message time={conversations[index]?.messages[0].time} speaker={conversations[index].messages[0].speaker} aiName={aiName} username={username} keepMessageAsIs={true} message={agentIntroductoryText(conversations[index].messages[0].speaker)}/>
+                                          <Message  time={conversations[index]?.messages[0].time} speaker={conversations[index].messages[0].speaker} aiName={aiName} username={username} keepMessageAsIs={true} message={agentIntroductoryText(conversations[index].messages[0].speaker)}/>
                                         )
                                       }
                                       </>
@@ -917,6 +919,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                             conversations[index]?.messages.filter((message)=>!message.ignore).map((a, messageIndex)=>{
                                 // const title ="Title"
                                 // const time = "Thursday 6:30pm"
+                                console.log({a, messageIndex})
                                 return (
                                     <>
                                     <Message calloutAgent={()=>{if (a.speaker !== username && a.speaker !== "Personal Assistant"){
@@ -934,7 +937,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
             }
             setPrompt(prompt + `@${findAgent(agents, a.speaker)} `)
             }
-            ;}} aiName={aiName} error={a.error || null} username={username} time={a.time} key={messageIndex} lastMessage={conversations[index]?.messages.length -1} message={a.message} keepMessageAsIs={false} speaker={a.speaker} />
+            ;}} aiName={aiName} error={a.error || null} username={username} time={a.time} index={messageIndex} lastMessage={conversations[index]?.messages.length -2} message={a.message} keepMessageAsIs={false} speaker={a.speaker} retry={()=>{submit(true)}} />
                                     </>
                                 )
                             })

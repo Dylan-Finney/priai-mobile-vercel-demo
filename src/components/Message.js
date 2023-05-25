@@ -6,7 +6,7 @@ import { Retry } from "@/assets/Retry";
 import { agents, agentsImages } from "./Utils";
 import Image from "next/image";
 
-export const Message = ({key,  time, username, aiName, speaker, message, calloutAgent, keepMessageAsIs, lastMessage, error, loading}) => {
+export const Message = ({index,  time, username, aiName, speaker, message, calloutAgent, keepMessageAsIs, lastMessage, error, loading, retry}) => {
     function formatTimestamp(timestamp) {
         const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         
@@ -27,10 +27,10 @@ export const Message = ({key,  time, username, aiName, speaker, message, callout
         return `${day} ${formattedTime}`;
       }
 
-    console.log({speaker, image: agentsImages[speaker]?.chatIcon})
+    console.log({index,  time, username, aiName, speaker, message, calloutAgent, keepMessageAsIs, lastMessage, error, loading})
     return (
         <Flex
-            key={key}
+            key={index}
             onDoubleClick={()=>{
                 try {
                     calloutAgent()
@@ -204,9 +204,10 @@ export const Message = ({key,  time, username, aiName, speaker, message, callout
             </Flex>
             )}
             {/* {console.log({a, messageIndex,conversations[messageIndex]?.messages.})} */}
+            {console.log({error, loading, index, lastMessage})}
             {
-            error && !loading && error.status !== 503 && key === lastMessage && (
-            <Box marginTop={"10px"} onClick={()=>{submit(true)}} cursor={"pointer"}>
+            error && loading !== true && error.status !== 503 && index === lastMessage && (
+            <Box marginTop={"10px"} onClick={()=>{retry()}} cursor={"pointer"}>
             <Retry/>
             </Box>
             )

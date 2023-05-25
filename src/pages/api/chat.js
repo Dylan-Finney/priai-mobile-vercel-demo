@@ -135,26 +135,32 @@ function getMessagesPrompt(chat, prompt, username,  aiName, bestAgent) {
     // }
     system = { role: "system", content: `${generalAccessPrompt}
 ${agentPrompts[agent[1].toLowerCase()]}
+---
 You are being bought in as part of a wider conversation. Treat messages addressed to the different personas ("@") as different threads. Use the below as context for the broader conversation: 
   ${chat.map((message) => {
       const role = message.name == "User" ? "Q" : "A";
       const m = { role: role, content: message.message };
       return `${m.role}: ${m.content}
 `
-    })}` };
+    })}
+---
+Ensure responses are unique compared to context convo.` };
   messages.push(system)
 
   } else if (bestAgent && bestAgent !== "Personal Assistant"){
-    console.log({keys: Object.keys(agents), agentPrompts, agents, bestAgent})
+    // console.log({keys: Object.keys(agents), agentPrompts, agents, bestAgent})
     system = { role: "system", content: `${generalAccessPrompt}
 ${agentPrompts[Object.keys(agents).find((agent)=>agents[agent]===bestAgent).toLowerCase()]}
+---
 You are being bought in as part of a wider conversation. Treat messages addressed to the different personas ("@") as different threads. Use the below as context for the broader conversation: 
   ${chat.map((message) => {
-      const role = message.name == "User" ? "Q" : "A";
+      const role = message.speaker === username ? "Q" : "A";
       const m = { role: role, content: message.message };
       return `${m.role}: ${m.content}
 `
-    })}` };
+    })}
+---
+Ensure responses are unique compared to context convo.` };
   messages.push(system)
     
   } 
@@ -162,7 +168,7 @@ You are being bought in as part of a wider conversation. Treat messages addresse
     system = { role: "system", content: initalPrompt};
     messages.push(system)
     chat.map((message) => {
-      const role = message.name == "Me" ? "user" : "assistant";
+      const role = message.speaker === username ? "user" : "assistant";
       const m = { role: `${role}`, content: message.message};
       messages.push(m)
     })
@@ -171,7 +177,7 @@ You are being bought in as part of a wider conversation. Treat messages addresse
   // system += "\nQ: " + prompt + "\nA:"
   messages.push({ role: "user", content: `${prompt}` }); //Date.now() to overcome caching?
 
-  console.log(system)
+  // console.log(system)
   return messages;
 }
 
@@ -192,11 +198,11 @@ const handler = async (req) => {
     stream: true,
     // finish_reason: "stop"
   };
-  console.log(payload)
+  // console.log(payload)
   // console.log( configuration)
 
   const stream = await OpenAIStreamChat(payload);
-  console.log(stream.status)
+  // console.log(stream.status)
   if (stream.status > 399){
     return new Response(
       JSON.stringify(stream),
