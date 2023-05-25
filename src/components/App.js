@@ -945,7 +945,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                         {loading && (
                             <>
                             {console.log("retry2", {length: conversations[index]?.messages.length , index })}
-                            <Message speaker={username} username={username} time={Date.now()} keepMessageAsIs={false} message={prompt}/>
+                            <Message speaker={username} username={username} time={Date.now()} keepMessageAsIs={false} message={prompt.replace(pattern, "@$1")}/>
                             <Message loading={loading} speaker={prompt.replace(pattern, "@$1")?.match(/@(\w+)/) === null ? currentBestAgent : Object.keys(agents).includes(prompt.replace(pattern, "@$1")?.match(/@(\w+)/)[1].toLowerCase()) !== null ? agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()] : "Personal Assistant" || "Personal Assistant"} aiName={aiName} username={username} message={""}
                              />
                             {/* {
