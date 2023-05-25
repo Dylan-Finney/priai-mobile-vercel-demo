@@ -33,6 +33,7 @@ import { AgentTrainerIcon } from "@/assets/AgentTrainerIcon";
 import { AgentBasketballCoachIcon } from "@/assets/AgentBasketballIcon";
 import { AgentSleepCoachIcon } from "@/assets/AgentSleepCoachIcon";
 import { AgentNutritionistIcon } from "@/assets/AgentNutritionistIcon";
+import { Message } from "./Message";
 
 // const username = "User"
 const agents = {
@@ -667,6 +668,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
       element.scrollTop = element.scrollHeight;
     },[conversations[index]?.messages, loading])
 
+
     useEffect(()=>{
       setMentionedAgents([...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").sort((a,b)=>{
         const lastIndexA = conversations[index]?.messages.map(message=>message.speaker).lastIndexOf(a)
@@ -755,212 +757,12 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                     )}
                                     {console.log({index})}
                                     {index === -1 ? (
-                                      <Flex
-                                      // key={messageIndex}
-                                      style={{
-                                        paddingTop: 32,
-                                        paddingBottom: 32,
-                                        paddingLeft: 16,
-                                        paddingRight: 16,
-                                        flex: 1,
-                                        backgroundColor: "white",
-                                        flexDirection: "column"
-                                      }}>
-                                        {
-                                         (
-                                            <Text
-                                              style={{
-                                                fontSize: 12,
-                                                color: '#475467',
-                                                fontWeight: 400,
-                                                alignSelf: "end"
-                                              }}>
-                                              {formatTimestamp(Date.now())}
-                                            </Text>
-                                          )
-                                        }
-                                        <Flex flexDir={"row"}>
-                                          <Box>
-                                            {agentsImages[selectedAgent]?.chatIcon ? agentsImages[selectedAgent]?.chatIcon :  <AIAvatar/>}
-                                          </Box>
-                                        <Flex
-                                          width={"100%"}
-                                          style={{
-                                            marginLeft: "8px",
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            paddingBottom: "4px",
-                                            justifyContent: 'space-between',
-                                            borderBottom: "1px solid #EAECF0",
-                                            alignItems:"center"
-                                          }}>
-                                          <Flex width={"100%"}>
-                                            
-                                            <Text
-                                            height={"fit-content"}
-                                              style={{
-                                                fontSize: 16,
-                                                color: '#344054',
-                                                fontWeight: 500,
-                                              }}>
-                                              {selectedAgent === "Personal Assistant" ? (aiName !== "" ? aiName : `${username}'s personal AI assistant`) : selectedAgent}
-                                            </Text>
-                                          <Spacer/>
-                                          {
-                                          (
-                                            <Flex alignItems={"center"} gap={"5px"}>
-                                            {
-                                              selectedAgent === "Personal Assistant" ? (
-                                                <Text
-                                                style={{
-                                                  fontSize: 10,
-                                                  color: '#107569',
-                                                  fontWeight: 500,
-                                                  backgroundColor: "#F0FDF9",
-                                                  padding: "3px",
-                                                  height: "fit-content"
-                                                }}>
-                                                PRI AI
-                                              </Text>
-                                              ) : (
-                                                <Text
-                                                style={{
-                                                  fontSize: 10,
-                                                  color: '#5925DC',
-                                                  fontWeight: 500,
-                                                  backgroundColor: "#F4F3FF",
-                                                  padding: "3px",
-                                                  height: "fit-content"
-                                                }}>
-                                                AGENT
-                                              </Text>
-                                              )
-                                            }
-                                            </Flex>
-                                          )
-                                          }
-
-                                        
-                                          </Flex>
-                                          </Flex>
-                                      </Flex>
-                                      <Flex flexDir={"column"} style={{marginLeft: 36,
-                                          marginTop: 10}}>
-                                      <Text
-                                        style={{
-                                          fontSize: 16,
-                                          color: '#475467',
-                                          fontWeight: 400,
-                                          
-                                        }}>{agentIntroductoryText(selectedAgent)}
-                                      </Text>
-                                      </Flex>
-                                    </Flex>
+                                      <Message time={Date.now()}  speaker={selectedAgent} aiName={aiName} username={username} keepMessageAsIs={true}  message={agentIntroductoryText(selectedAgent)} />
                                     ):(
                                       <>
                                       {
                                         conversations[index]?.messages[0]?.intro && (
-                                          <Flex
-                                      // key={messageIndex}
-                                      style={{
-                                        paddingTop: 32,
-                                        paddingBottom: 32,
-                                        paddingLeft: 16,
-                                        paddingRight: 16,
-                                        flex: 1,
-                                        backgroundColor: "white",
-                                        flexDirection: "column"
-                                      }}>
-                                        {
-                                         (
-                                            <Text
-                                              style={{
-                                                fontSize: 12,
-                                                color: '#475467',
-                                                fontWeight: 400,
-                                                alignSelf: "end"
-                                              }}>
-                                              {formatTimestamp(conversations[index]?.messages[0].time)}
-                                            </Text>
-                                          )
-                                        }
-                                        <Flex flexDir={"row"}>
-                                          <Box>
-                                            {agentsImages[conversations[index].messages[0].speaker]?.chatIcon ? agentsImages[conversations[index].messages[0].speaker]?.chatIcon :  <AIAvatar/>}
-                                          </Box>
-                                        <Flex
-                                          width={"100%"}
-                                          style={{
-                                            marginLeft: "8px",
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            paddingBottom: "4px",
-                                            justifyContent: 'space-between',
-                                            borderBottom: "1px solid #EAECF0",
-                                            alignItems:"center"
-                                          }}>
-                                          <Flex width={"100%"}>
-                                            
-                                            <Text
-                                            height={"fit-content"}
-                                              style={{
-                                                fontSize: 16,
-                                                color: '#344054',
-                                                fontWeight: 500,
-                                              }}>
-                                              {conversations[index].messages[0].speaker === "Personal Assistant" ? (aiName !== "" ? aiName : `${username}'s personal AI assistant`) : conversations[index].messages[0].speaker}
-                                            </Text>
-                                          <Spacer/>
-                                          {
-                                          (
-                                            <Flex alignItems={"center"} gap={"5px"}>
-                                            {
-                                              conversations[index].messages[0].speaker === "Personal Assistant" ? (
-                                                <Text
-                                                style={{
-                                                  fontSize: 10,
-                                                  color: '#107569',
-                                                  fontWeight: 500,
-                                                  backgroundColor: "#F0FDF9",
-                                                  padding: "3px",
-                                                  height: "fit-content"
-                                                }}>
-                                                PRI AI
-                                              </Text>
-                                              ) : (
-                                                <Text
-                                                style={{
-                                                  fontSize: 10,
-                                                  color: '#5925DC',
-                                                  fontWeight: 500,
-                                                  backgroundColor: "#F4F3FF",
-                                                  padding: "3px",
-                                                  height: "fit-content"
-                                                }}>
-                                                AGENT
-                                              </Text>
-                                              )
-                                            }
-                                            </Flex>
-                                          )
-                                          }
-
-                                        
-                                          </Flex>
-                                          </Flex>
-                                      </Flex>
-                                      <Flex flexDir={"column"} style={{marginLeft: 36,
-                                          marginTop: 10}}>
-                                      <Text
-                                        style={{
-                                          fontSize: 16,
-                                          color: '#475467',
-                                          fontWeight: 400,
-                                          
-                                        }}>{agentIntroductoryText(conversations[index].messages[0].speaker)}
-                                      </Text>
-                                      </Flex>
-                                    </Flex>
+                                          <Message time={conversations[index]?.messages[0].time} speaker={conversations[index].messages[0].speaker} aiName={aiName} username={username} keepMessageAsIs={true} message={agentIntroductoryText(conversations[index].messages[0].speaker)}/>
                                         )
                                       }
                                       </>
@@ -970,196 +772,36 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                            
                         {
                             conversations[index]?.messages.filter((message)=>!message.ignore).map((a, messageIndex)=>{
-                                console.log("a",a)
-                                const type = a.speaker === username ? "entry": ""
                                 // const title ="Title"
                                 // const time = "Thursday 6:30pm"
                                 return (
                                     <>
-                                    <Flex
-                                      key={messageIndex}
-                                      onDoubleClick={()=>{
-                                        if (type !== "entry" && a.speaker !== "Personal Assistant"){
-                                          const findAgent = (obj, value) => {
-                                            const keys = Object.keys(obj);
-    
-                                            for (let i = 0; i < keys.length; i++) {
-                                              const key = keys[i];
-                                              if (obj[key] === value) {
-                                                return key; // Return the first matching property name
-                                              }
-                                            }
-                                            
-                                            return ""; // Return null if no matching property is found
-                                          }
-                                          setPrompt(prompt + `@${findAgent(agents, a.speaker)} `)
-                                        }
-                                        ;}}
-                                      style={{
-                                        paddingTop: 32,
-                                        paddingBottom: 32,
-                                        paddingLeft: 16,
-                                        paddingRight: 16,
-                                        flex: 1,
-                                        backgroundColor: type === "entry" ? "#F9FAFB" : "white",
-                                        flexDirection: "column"
-                                      }}>
-                                        {
-                                          type !== "entry" && (
-                                            <Text
-                                              style={{
-                                                fontSize: 12,
-                                                color: '#475467',
-                                                fontWeight: 400,
-                                                alignSelf: "end"
-                                              }}>
-                                              {formatTimestamp(a.time)}
-                                            </Text>
-                                          )
-                                        }
-                                        <Flex flexDir={"row"}>
-                                          <Box>
-                                            {type === 'entry' ? <UserAvatar /> :  agentsImages[a.speaker]?.chatIcon ? agentsImages[a.speaker]?.chatIcon :  <AIAvatar/>}
-                                          </Box>
-                                        <Flex
-                                          width={"100%"}
-                                          style={{
-                                            marginLeft: "8px",
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            paddingBottom: "4px",
-                                            justifyContent: 'space-between',
-                                            borderBottom: "1px solid #EAECF0",
-                                            alignItems:"center"
-                                          }}>
-                                          <Flex width={"100%"}>
-                                            
-                                            <Text
-                                            height={"fit-content"}
-                                              style={{
-                                                fontSize: 16,
-                                                color: '#344054',
-                                                fontWeight: 500,
-                                              }}>
-                                              {type === 'entry' ? `You (${username})` : a.speaker === "Personal Assistant" ? (aiName !== "" ? aiName : `${username}'s personal AI assistant`) : a.speaker}
-                                            </Text>
-                                          <Spacer/>
-                                          {
-                                          type === "entry" ? (
-                                            <Text
-                                              style={{
-                                                fontSize: 12,
-                                                color: '#475467',
-                                                fontWeight: 400,
-                                                alignSelf: "end"
-                                              }}>
-                                              {formatTimestamp(a.time)}
-                                            </Text>
-                                          ) : (
-                                            <Flex alignItems={"center"} gap={"5px"}>
-                                            {
-                                              a.speaker === "Personal Assistant" ? (
-                                                <Text
-                                                style={{
-                                                  fontSize: 10,
-                                                  color: '#107569',
-                                                  fontWeight: 500,
-                                                  backgroundColor: "#F0FDF9",
-                                                  padding: "3px",
-                                                  height: "fit-content"
-                                                }}>
-                                                PRI AI
-                                              </Text>
-                                              ) : (
-                                                <Text
-                                                style={{
-                                                  fontSize: 10,
-                                                  color: '#5925DC',
-                                                  fontWeight: 500,
-                                                  backgroundColor: "#F4F3FF",
-                                                  padding: "3px",
-                                                  height: "fit-content"
-                                                }}>
-                                                AGENT
-                                              </Text>
-                                              )
-                                            }
-                                            {a.error && (
-                                              <Error/>
-                                            )}
-                                            </Flex>
-                                          )
-                                          }
+                                    <Message calloutAgent={()=>{if (a.speaker !== username && a.speaker !== "Personal Assistant"){
+            const findAgent = (obj, value) => {
+            const keys = Object.keys(obj);
 
-                                        
-                                          </Flex>
-                                          </Flex>
-                                      </Flex>
-                                      <Flex flexDir={"column"} style={{marginLeft: 36,
-                                          marginTop: 10}}>
-                                      <Text
-                                        style={{
-                                          fontSize: 16,
-                                          color: '#475467',
-                                          fontWeight: 400,
-                                          
-                                        }}>
-                                        {a.message.split(/([@#]\w+)/).map((str, strIndex)=>{
-                                          return (
-                                            <span 
-                                            key={strIndex}
-                                            style={{
-                                              fontWeight: ["#","@"].includes(str.charAt(0)) ? "bold" : "normal"
-                                            }}
-                                            >
-                                            {str}
-                                          </span>
-                                          )
-                                        })}
-                                      </Text>
-                                      {a.error && (
-                                        <Flex marginTop={"10px"} flexDir={"row"} borderLeft={"8px solid #FECDCA"} border={"1px solid #FECDCA"} borderRadius={"8px"} style={{background: "#FFFBFA"}} >
-                                          <Flex position={"relative"} borderTopLeftRadius={"8px"} borderBottomLeftRadius={"8px"} backgroundColor={"#FECDCA"} width={"8px"}></Flex>
-                                          <Flex flexDirection={"column"} padding={"16px 10px"}>
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                if (obj[key] === value) {
+                return key; // Return the first matching property name
+                }
+            }
 
-                                          <Flex flexDirection={"row"} gap={"5px"} alignItems={"center"}>
-                                            <Text fontSize={"14px"} color={"#F04438"} fontWeight={600}>
-                                              {a.error.status === 503 ? (
-                                                "No Network Connection"
-                                              ) : (
-                                                "APIConnectionError"
-                                              )}
-                                              
-                                              </Text>
-                                            <Error/>
-                                          </Flex>
-
-                                        <Text fontWeight={400} fontSize={"14px"} color={"#F04438"}>{a.error.status === 503 ? (
-                                                "You are not connected to the internet. Please reconnect and try again."
-                                              ) : (
-                                                "Issue connecting to our services. Check your network settings, proxy configuration, SSL certificates, or firewall rules."
-                                              )}</Text>
-                                        </Flex>
-
-                                        </Flex>
-                                      )}
-                                      {/* {console.log({a, messageIndex,conversations[messageIndex]?.messages.})} */}
-                                      {
-                                        a.error && !loading && a.error.status !== 503 && messageIndex === conversations[index]?.messages.length -1 && (
-                                         <Box marginTop={"10px"} onClick={()=>{submit(true)}} cursor={"pointer"}>
-                                           <Retry/>
-                                         </Box>
-                                        )
-                                      }
-                                      </Flex>
-                                    </Flex>
-                                  </>
+            return ""; // Return null if no matching property is found
+            }
+            setPrompt(prompt + `@${findAgent(agents, a.speaker)} `)
+            }
+            ;}} aiName={aiName} error={a.error || null} username={username} time={a.time} key={messageIndex} lastMessage={conversations[index]?.messages.length -1} message={a.message} keepMessageAsIs={false} speaker={a.speaker} />
+                                    </>
                                 )
                             })
                         }
                         {loading && (
                             <>
                             {console.log("retry2", {length: conversations[index]?.messages.length , index })}
+                            <Message speaker={username} username={username} time={Date.now()} keepMessageAsIs={false} message={prompt}/>
+                            <Message loading={loading} speaker={prompt.replace(pattern, "@$1")?.match(/@(\w+)/) === null ? "Personal Assistant" : Object.keys(agents).includes(prompt.replace(pattern, "@$1")?.match(/@(\w+)/)[1].toLowerCase()) !== null ? agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()] : "Personal Assistant" || "Personal Assistant"} aiName={aiName} username={username} message={""}
+                             />
                             {/* {
                               index === -1 ? (
                                       <Flex flexDirection={"row"} alignItems={"center"} margin={"16px 0px"}>
@@ -1183,196 +825,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                                 </>
                               )
                             } */}
-                            <Flex
-                                      style={{
-                                        paddingTop: 32,
-                                        paddingBottom: 32,
-                                        paddingLeft: 16,
-                                        paddingRight: 16,
-                                        flex: 1,
-                                        flexDirection: "column"
-                                      }}>
-                                        
-                                        <Flex flexDir={"row"}>
-                                          <Box>
-                                            <UserAvatar />
-                                          </Box>
-                                        <Flex
-                                          width={"100%"}
-                                          style={{
-                                            marginLeft: "8px",
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            paddingBottom: "4px",
-                                            justifyContent: 'space-between',
-                                            borderBottom: "1px solid #EAECF0",
-                                            alignItems:"center"
-                                          }}>
-                                          <Flex width={"100%"}>
-                                            
-                                            <Text
-                                            height={"fit-content"}
-                                              style={{
-                                                fontSize: 16,
-                                                color: '#344054',
-                                                fontWeight: 500,
-                                              }}>
-                                              You ({username})
-                                            </Text>
-                                          <Spacer/>
-                                          <Text
-                                          style={{
-                                            fontSize: 12,
-                                            color: '#475467',
-                                            fontWeight: 400,
-                                            alignSelf: "end"
-                                          }}>
-                                          {formatTimestamp(Date.now())}
-                                        </Text>
-
-                                        
-                                          </Flex>
-                                          </Flex>
-                                      </Flex>
-                                      <Text
-                                        style={{
-                                          fontSize: 16,
-                                          color: '#475467',
-                                          fontWeight: 400,
-                                          marginLeft: 36,
-                                          marginTop: 10
-                                        }}>
-                                        {prompt.replace(pattern, "@$1").split(/([@#]\w+)/).map((str, strIndex)=>{
-                                          return (
-                                            <span 
-                                            key={strIndex}
-                                            style={{
-                                              fontWeight: ["#","@"].includes(str.charAt(0)) ? "bold" : "normal"
-                                            }}
-                                            >
-                                            {str}
-                                          </span>
-                                          )
-                                        })}
-                                      </Text>
-                                      
-                                    </Flex>
-                                    <Flex
-                                      style={{
-                                        paddingTop: 32,
-                                        paddingBottom: 32,
-                                        paddingLeft: 16,
-                                        paddingRight: 16,
-                                        flex: 1,
-                                        flexDirection: "column"
-                                      }}>
-                                        <Text
-                                          style={{
-                                            fontSize: 12,
-                                            color: '#475467',
-                                            fontWeight: 400,
-                                            alignSelf: "end"
-                                          }}>
-                                          {/* Thursday 6:30pm */}
-                                        </Text>
-                                        <Flex flexDir={"row"}>
-                                          <Box>
-                                            {
-                                             prompt.replace(pattern, "@$1").match(/@(\w+)/) === null ? (
-                                              <AIAvatar/>
-                                              ) : (
-                                                <>
-                                                {Object.keys(agents).includes(prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()) ? agentsImages[agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()]].chatIcon  : <AIAvatar/>}
-                                                
-                                                </>
-                                              )
-                                            }
-                                          </Box>
-                                        <Flex
-                                          width={"100%"}
-                                          style={{
-                                            marginLeft: "8px",
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            paddingBottom: "4px",
-                                            justifyContent: 'space-between',
-                                            borderBottom: "1px solid #EAECF0",
-                                            alignItems:"center"
-                                          }}>
-                                          <Flex width={"100%"}>
-                                            
-                                            <Text
-                                            height={"fit-content"}
-                                              style={{
-                                                fontSize: 16,
-                                                color: '#344054',
-                                                fontWeight: 500,
-                                              }}>
-                                              {
-                                                prompt.replace(pattern, "@$1").match(/@(\w+)/)  === null ? (aiName !== "" ? aiName : `${username}'s personal AI assistant`) : 
-                                                Object.keys(agents).includes(prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()) ? agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()] : (aiName !== "" ? aiName : `${username}'s personal AI assistant`)
-                                              }
-                                            </Text>
-                                          <Spacer/>
-                                          <Flex flexDirection={"row"} alignItems={"center"} >
-
-                                          {
-                                            prompt.replace(pattern, "@$1").match(/@(\w+)/) === null ? (
-                                              <Text
-                                              style={{
-                                                fontSize: 10,
-                                                color: '#107569',
-                                                fontWeight: 500,
-                                                backgroundColor: "#F0FDF9",
-                                                padding: "3px",
-                                                height: "fit-content"
-                                              }}>
-                                              PRI AI
-                                            </Text>
-                                            ) : (
-                                              <>
-                                              {!Object.keys(agents).includes(prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()) ? (
-                                                  <Text
-                                                  style={{
-                                                    fontSize: 10,
-                                                    color: '#107569',
-                                                    fontWeight: 500,
-                                                    backgroundColor: "#F0FDF9",
-                                                    padding: "3px",
-                                                    height: "fit-content"
-                                                  }}>
-                                                  PRI AI
-                                                </Text>
-                                                ) : (
-                                                  <Text
-                                                  style={{
-                                                    fontSize: 10,
-                                                    color: '#5925DC',
-                                                    fontWeight: 500,
-                                                    backgroundColor: "#F4F3FF",
-                                                    padding: "3px",
-                                                    height: "fit-content"
-                                                  }}>
-                                                  AGENT
-                                                </Text>
-                                                )}
-                                              </>
-                                            )
-                                                
-                                            }
-                                            <Image
-                                              src="/Spinner.gif"
-                                              width={30}
-                                              height={30}
-                                                alt="Picture of the author"
-                                              />
-                                          </Flex>
-
-                                        
-                                          </Flex>
-                                          </Flex>
-                                      </Flex>
-                                    </Flex>
+                            
                             {/* </Flex>    */}
                             </>
                             
@@ -1412,7 +865,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
   }}
     >
       {console.log(value)}
-  <MentionsInput   onKeyDown={(event)=>{if(event.key==="Enter"){submit()}}} forceSuggestionsAboveCursor={true} value={prompt} onChange={handleInputChange} placeholder="How did I sleep last night?" disabled={loading} singleLine style={{ "&singleLine": {
+  <MentionsInput  onKeyDown={(event)=>{if(event.key==="Enter"){submit()}}} forceSuggestionsAboveCursor={true} value={prompt} onChange={handleInputChange} placeholder="How did I sleep last night?" disabled={loading} singleLine style={{ "&singleLine": {
     display: 'inline-block',
     width: "100%",
     maxWidth: "calc(100vw - 107px)",
