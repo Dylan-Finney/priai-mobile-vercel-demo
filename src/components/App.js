@@ -337,6 +337,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
     const [prompt, setPrompt] = useState("")
     const [loading, setLoading] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const [currentBestAgent, setCurrentBestAgent] = useState("Personal Assistant")
 
     const [mentionedAgents, setMentionedAgents] = useState([...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User").sort((a,b)=>{
       const lastIndexA = conversations[index]?.messages.map(message=>message.speaker).lastIndexOf(a)
@@ -541,34 +542,38 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
           
 
           try {
+
+            const agent = promptProcessed.match(/@(\w+)/)
+            var speaker = "Personal Assistant"
+            if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
+              console.log("Route 1")
+              speaker = agents[agent[1].toLowerCase()]
               const response = await fetch("/api/chat", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    // "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - (retryIndex === true ? 14 : 12) : 0,retryIndex === true ? conversations[index]?.messages.length-2 : undefined ) || [],
-                    "chat": conversations[index]?.messages.filter((message, messageIndex)=>{
-                      if (conversations[index]?.messages[messageIndex].error || conversations[index]?.messages[messageIndex].ignore){
-                        return false
-                      }
-                      if (messageIndex === conversations[index]?.messages.length - 1){
-                        return true
-                      } 
-                      if (conversations[index]?.messages[messageIndex+1].error || conversations[index]?.messages[messageIndex].error ) {
-                        return false
-                      } else {
-                        return true
-                      }
-                    }).slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0 ) || [],
-                    "prompt": promptProcessed,
-                    "username": username,
-                    "aiName": aiName
-                })
-               })
-  
-  
-               console.log(response)
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  // "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - (retryIndex === true ? 14 : 12) : 0,retryIndex === true ? conversations[index]?.messages.length-2 : undefined ) || [],
+                  "chat": conversations[index]?.messages.filter((message, messageIndex)=>{
+                    if (conversations[index]?.messages[messageIndex].error || conversations[index]?.messages[messageIndex].ignore){
+                      return false
+                    }
+                    if (messageIndex === conversations[index]?.messages.length - 1){
+                      return true
+                    } 
+                    if (conversations[index]?.messages[messageIndex+1].error || conversations[index]?.messages[messageIndex].error ) {
+                      return false
+                    } else {
+                      return true
+                    }
+                  }).slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0 ) || [],
+                  "prompt": promptProcessed,
+                  "username": username,
+                  "aiName": aiName
+              })
+             })
+             console.log(response)
                //Text Complete
               //  const data = response.body
               //   if (!data) {
@@ -619,14 +624,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                 if (response.status > 399) throw JSON.parse(answer)
                 console.log(answer)
   
-                
-              var speaker = "Personal Assistant"
-              const agent = promptProcessed.match(/@(\w+)/)
-  
-  
-              if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
-                speaker = agents[agent[1].toLowerCase()]
-              }
+
                 if (index === -1) {
                   const newIndex = newConversation([{"speaker": selectedAgent , time: timeSent, ignore: true, intro: true},{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": speaker, message: speaker === selectedAgent ? answer : answer += "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.", time: timeReceived}])
                   setIndex(newIndex)
@@ -637,6 +635,151 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                 setConversations(conversationCopy)
                 setPrompt("")
               }
+            } else {
+              console.log("Route 2")
+              const response2 = await fetch("/api/autoselectAgent", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  // "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - (retryIndex === true ? 14 : 12) : 0,retryIndex === true ? conversations[index]?.messages.length-2 : undefined ) || [],
+                  "chat": conversations[index]?.messages.filter((message, messageIndex)=>{
+                    if (conversations[index]?.messages[messageIndex].error || conversations[index]?.messages[messageIndex].ignore){
+                      return false
+                    }
+                    if (messageIndex === conversations[index]?.messages.length - 1){
+                      return true
+                    } 
+                    if (conversations[index]?.messages[messageIndex+1].error || conversations[index]?.messages[messageIndex].error ) {
+                      return false
+                    } else {
+                      return true
+                    }
+                  }).slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0 ) || [],
+                  "prompt": promptProcessed,
+                  "agents": index > -1 ? [...new Set(conversations[index]?.messages.map(item => item.speaker))].filter(speaker=>speaker !== "User" && speaker !== "Personal Assistant" ) : [selectedAgent]
+              })
+             })
+              
+
+             
+           console.log({response2})
+           const dataAgentSelection = response2.body
+           if (!dataAgentSelection) {
+             return
+           }
+           const readerAgentSelection = dataAgentSelection.getReader()
+           const decoderAgentSelection = new TextDecoder()
+           let doneAgentSelection = false
+           var answerAgentSelection = ""
+       
+           // const responseReceived = Date.now()
+           while (!doneAgentSelection) {
+             const { value, done: doneReading } = await readerAgentSelection.read()
+             doneAgentSelection = doneReading
+             const chunkValue = decoderAgentSelection.decode(value)
+             answerAgentSelection = answerAgentSelection + chunkValue
+             console.log(chunkValue)
+             
+           }
+           answerAgentSelection = answerAgentSelection.trim()
+           if (answerAgentSelection === "None") answerAgentSelection = "Personal Assistant"
+           setCurrentBestAgent(answerAgentSelection)
+           console.log({answerAgentSelection})
+           const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              // "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - (retryIndex === true ? 14 : 12) : 0,retryIndex === true ? conversations[index]?.messages.length-2 : undefined ) || [],
+              "chat": conversations[index]?.messages.filter((message, messageIndex)=>{
+                if (conversations[index]?.messages[messageIndex].error || conversations[index]?.messages[messageIndex].ignore){
+                  return false
+                }
+                if (messageIndex === conversations[index]?.messages.length - 1){
+                  return true
+                } 
+                if (conversations[index]?.messages[messageIndex+1].error || conversations[index]?.messages[messageIndex].error ) {
+                  return false
+                } else {
+                  return true
+                }
+              }).slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - 12 : 0 ) || [],
+              "prompt": promptProcessed,
+              "username": username,
+              "aiName": aiName,
+              "agent": answerAgentSelection
+          })
+         })
+          
+             console.log(response)
+             //Text Complete
+            //  const data = response.body
+            //   if (!data) {
+            //     return
+            //   }
+            //   const reader = data.getReader()
+            //   const decoder = new TextDecoder()
+            //   let done = false
+            //   var answer = ""
+          
+            //   // const responseReceived = Date.now()
+            //   while (!done) {
+            //     const { value, done: doneReading } = await reader.read()
+            //     done = doneReading
+            //     const chunkValue = decoder.decode(value)
+            //     answer = answer + chunkValue
+            //     console.log(chunkValue)
+                
+            //   }
+            //   console.log(answer)
+            //   if (index === -1) {
+            //     const newIndex = newConversation([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
+            //     setIndex(newIndex)
+            // } else {
+            //     setConversations([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
+            //   }
+            
+             const data = response.body;
+             console.log("data",data)
+             if (!data) {
+               return;
+             }
+         
+             const reader = data.getReader();
+             const decoder = new TextDecoder();
+             let done = false;
+         
+              var answer = ""
+              while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunkValue = decoder.decode(value);
+                console.log({oldAnswer: answer, newAnswer: answer + chunkValue, chunkValue, done})
+                answer = answer + chunkValue
+                
+              }
+              const timeReceived = Date.now()
+              if (response.status > 399) throw JSON.parse(answer)
+              console.log(answer)
+
+
+              if (index === -1) {
+                const newIndex = newConversation([{"speaker": selectedAgent , time: timeSent, ignore: true, intro: true},{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": answerAgentSelection, message: answerAgentSelection === selectedAgent ? answer : answer += "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.", time: timeReceived}])
+                setIndex(newIndex)
+            } else {
+              const newSpeaker = !(conversations[index].messages.some(message=>message.speaker === answerAgentSelection))
+              var conversationCopy = conversations
+              conversationCopy[index].messages = conversationCopy[index].messages.concat([{"speaker": username, message: promptProcessed, time: timeSent},{"speaker": answerAgentSelection, message: newSpeaker ? answer += "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination." : answer, time: timeReceived}])
+              setConversations(conversationCopy)
+              setPrompt("")
+            }
+            }
+            
+
+              
           } catch (e) {
               console.error(e)
               var speaker = "Personal Assistant"
@@ -800,7 +943,7 @@ const Convo = ({username, aiName ,goBack, selectedAgent, emptyConvo, index, newC
                             <>
                             {console.log("retry2", {length: conversations[index]?.messages.length , index })}
                             <Message speaker={username} username={username} time={Date.now()} keepMessageAsIs={false} message={prompt}/>
-                            <Message loading={loading} speaker={prompt.replace(pattern, "@$1")?.match(/@(\w+)/) === null ? "Personal Assistant" : Object.keys(agents).includes(prompt.replace(pattern, "@$1")?.match(/@(\w+)/)[1].toLowerCase()) !== null ? agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()] : "Personal Assistant" || "Personal Assistant"} aiName={aiName} username={username} message={""}
+                            <Message loading={loading} speaker={prompt.replace(pattern, "@$1")?.match(/@(\w+)/) === null ? currentBestAgent : Object.keys(agents).includes(prompt.replace(pattern, "@$1")?.match(/@(\w+)/)[1].toLowerCase()) !== null ? agents[prompt.replace(pattern, "@$1").match(/@(\w+)/)[1].toLowerCase()] : "Personal Assistant" || "Personal Assistant"} aiName={aiName} username={username} message={""}
                              />
                             {/* {
                               index === -1 ? (

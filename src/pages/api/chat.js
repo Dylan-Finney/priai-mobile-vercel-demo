@@ -1,6 +1,7 @@
 
 import { Configuration, OpenAIApi } from "openai";
-import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
+import { OpenAIStreamChat, OpenAIStreamPayload } from "../../utils/OpenAIStream";
+import { agents } from "@/components/Utils";
 
 // const configuration = new Configuration({
 //   apiKey: process.env.STAGE === "dev" ? process.env.OPENAI_API_KEY_DEV : process.env.OPENAI_API_KEY_PROD,
@@ -16,7 +17,7 @@ export const config = {
 
 
 
-  const agents = {
+  const agentPrompts = {
     //Personality
     "caregiver": `In your responses, embody the "Caregiver" advisor archetype, by embodying the compassionate and nurturing persona of a Caregiver. In every response, whether it's a profound question or a seemingly trivial inquiry, adapt your answer to reflect your caring nature. Provide not only the requested information but also offer a touch of empathy, encouragement, or a thoughtful perspective. Tailor your responses to showcase your nurturing spirit, making the interaction a comforting experience for the person seeking guidance. Share your wisdom, extend your support, and embrace the opportunity to make a positive impact on others. Add additional details to your answer related to your persona. Let your caring essence flow through every answer, illuminating the path with empathy and understanding.`,
     "jester": `In your responses, embody the mischievous and witty persona of a Jester. Engage in playful banter and humorously relate all your responses to this persona. Make us laugh, surprise us, and tickle our funny bones as you navigate through conversations with your whimsical charm.  Feel free to use emojis. Remember, your primary goal is to entertain and bring joy to those interacting with you. Let the jesting begin!`,
@@ -68,7 +69,7 @@ export const config = {
   }
   
 
-function getMessagesPrompt(chat, prompt, username,  aiName) {
+function getMessagesPrompt(chat, prompt, username,  aiName, bestAgent) {
   let messages = [];
   var system
   const generalAccessPrompt = `You will now you act as my “fake Personal AI”. You will have access to all my personal data and information from all common applications and services that consumers use, including dietary, even real-time and recent. In addition you will have access to data in any products, accessories or pets I have like; ski booths, jacket, rackets, bicycle, car, etc. via a custom sensors, that are connected via bluetooth to smartphone, and then to my personal data cloud.
@@ -117,7 +118,8 @@ function getMessagesPrompt(chat, prompt, username,  aiName) {
 
 
   const agent = prompt.match(/@(\w+)/)
-  if (agent && Object.keys(agents).includes(agent[1].toLowerCase())){
+
+  if (agent && Object.keys(agentPrompts).includes(agent[1].toLowerCase())){
     // system = generalAccessPrompt
     // system += "\n" + agents[agent[1].toLowerCase()]
     // system += "\nYou are being bought in as part of a wider conversation." 
@@ -132,17 +134,31 @@ function getMessagesPrompt(chat, prompt, username,  aiName) {
     //   system += "\n---"
     // }
     system = { role: "system", content: `${generalAccessPrompt}
-${agents[agent[1].toLowerCase()]}
+${agentPrompts[agent[1].toLowerCase()]}
 You are being bought in as part of a wider conversation. Treat messages addressed to the different personas ("@") as different threads. Use the below as context for the broader conversation: 
   ${chat.map((message) => {
-      const role = message.name == "Me" ? "Q" : "A";
+      const role = message.name == "User" ? "Q" : "A";
       const m = { role: role, content: message.message };
       return `${m.role}: ${m.content}
-      `
+`
     })}` };
   messages.push(system)
 
-  } else {
+  } else if (bestAgent && bestAgent !== "Personal Assistant"){
+    console.log({keys: Object.keys(agents), agentPrompts, agents, bestAgent})
+    system = { role: "system", content: `${generalAccessPrompt}
+${agentPrompts[Object.keys(agents).find((agent)=>agents[agent]===bestAgent).toLowerCase()]}
+You are being bought in as part of a wider conversation. Treat messages addressed to the different personas ("@") as different threads. Use the below as context for the broader conversation: 
+  ${chat.map((message) => {
+      const role = message.name == "User" ? "Q" : "A";
+      const m = { role: role, content: message.message };
+      return `${m.role}: ${m.content}
+`
+    })}` };
+  messages.push(system)
+    
+  } 
+  else {
     system = { role: "system", content: initalPrompt};
     messages.push(system)
     chat.map((message) => {
@@ -163,13 +179,14 @@ const handler = async (req) => {
   const result = await req.json();
   const chat = result.chat;
   const prompt = result.prompt;
+  const bestAgent = result.agent || "";
   const username = result.username;
   const aiName = result.aiName;
 
 
   const payload = {
     model: process.env.STAGE === "dev" ? "gpt-3.5-turbo-0301" : "gpt-4",
-    messages: getMessagesPrompt(chat, prompt, username, aiName),
+    messages: getMessagesPrompt(chat, prompt, username, aiName, bestAgent),
     max_tokens: 999,
     temperature: 0.7,
     stream: true,
@@ -178,7 +195,7 @@ const handler = async (req) => {
   console.log(payload)
   // console.log( configuration)
 
-  const stream = await OpenAIStream(payload);
+  const stream = await OpenAIStreamChat(payload);
   console.log(stream.status)
   if (stream.status > 399){
     return new Response(
