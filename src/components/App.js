@@ -113,7 +113,7 @@ function App({ username, aiName }) {
                 selectedAgent={selectedAgent}
                 conversations={conversations}
                 setConversations={(convoCopy) => {
-                  setConversations(convoCopy);
+                  setConversations([...convoCopy]);
                 }}
                 index={index}
                 setIndex={(newIndex) => {

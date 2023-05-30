@@ -50,19 +50,19 @@ export const Message = ({
     return `${day} ${formattedTime}`;
   }
 
-  console.log({
-    index,
-    time,
-    username,
-    aiName,
-    speaker,
-    message,
-    calloutAgent,
-    keepMessageAsIs,
-    lastMessage,
-    error,
-    loading,
-  });
+  // console.log({
+  //   index,
+  //   time,
+  //   username,
+  //   aiName,
+  //   speaker,
+  //   message,
+  //   calloutAgent,
+  //   keepMessageAsIs,
+  //   lastMessage,
+  //   error,
+  //   loading,
+  // });
   return (
     <Flex
       key={index}
@@ -81,7 +81,7 @@ export const Message = ({
         flexDirection: "column",
       }}
     >
-      {speaker !== username && !loading && (
+      {speaker !== username && loading === 0 && (
         <Text
           style={{
             fontSize: 12,
@@ -173,7 +173,8 @@ export const Message = ({
                     AGENT
                   </Text>
                 )}
-                {loading && (
+                {((loading === 2 && lastMessage === index) ||
+                  (!index && loading > 0)) && (
                   <Image
                     src="/Spinner.gif"
                     width={30}
@@ -251,9 +252,22 @@ export const Message = ({
           </Flex>
         )}
         {/* {console.log({a, messageIndex,conversations[messageIndex]?.messages.})} */}
-        {console.log({ error, loading, index, lastMessage })}
+        {console.log({
+          index,
+          time,
+          username,
+          aiName,
+          speaker,
+          message,
+          calloutAgent,
+          keepMessageAsIs,
+          lastMessage,
+          error,
+          loading,
+          retry,
+        })}
         {error &&
-          loading !== true &&
+          loading === 0 &&
           error.status !== 503 &&
           index === lastMessage && (
             <Box

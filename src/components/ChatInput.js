@@ -18,7 +18,7 @@ export const ChatInput = ({
     setPrompt(newValue);
   };
   useEffect(() => {
-    if (!loading) {
+    if (loading === 0) {
       setPrompt("");
     }
   }, [loading]);
@@ -76,7 +76,7 @@ export const ChatInput = ({
         value={prompt}
         onChange={handleInputChange}
         placeholder="How did I sleep last night?"
-        disabled={loading}
+        disabled={loading > 0}
         singleLine
         style={{
           "&singleLine": {

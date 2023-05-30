@@ -35,7 +35,7 @@ export const Convo = ({
   retryExchange,
 }) => {
   const [prompt, setPrompt] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(0);
   const [doubleClickAgent, setDoubleClickAgent] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentBestAgent, setCurrentBestAgent] =
@@ -51,12 +51,12 @@ export const Convo = ({
         const lastIndexB = conversations[index]?.messages
           .map((message) => message.speaker)
           .lastIndexOf(b);
-        console.log({
-          speakerA: a.speaker,
-          speakerB: b.speaker,
-          lastIndexA,
-          lastIndexB,
-        });
+        // console.log({
+        //   speakerA: a.speaker,
+        //   speakerB: b.speaker,
+        //   lastIndexA,
+        //   lastIndexB,
+        // });
         return lastIndexA - lastIndexB;
       })
   );
@@ -168,10 +168,10 @@ export const Convo = ({
   };
 
   const submit = async ({ prompt = "", retryIndex = null }) => {
-    console.log("test");
+    // console.log("test");
     const timeSent = Date.now();
 
-    setLoading(true);
+    setLoading(1);
 
     var promptProcessed;
     if (retryIndex === true) {
@@ -184,7 +184,7 @@ export const Convo = ({
       tempConversations[index].messages = tempConversations[
         index
       ].messages.slice(0, -2);
-      console.log({ promptProcessed, tempConversations });
+      // console.log({ promptProcessed, tempConversations });
       setConversations(tempConversations);
     } else {
       setPrompt(prompt);
@@ -192,6 +192,8 @@ export const Convo = ({
     }
 
     try {
+      const sampleIndex = newConversation([{}]);
+      console.log("test", { conversations, sampleIndex });
       const agent = promptProcessed.match(/@(\w+)/);
       var speaker = "Personal Assistant";
       if (
@@ -201,6 +203,7 @@ export const Convo = ({
       ) {
         console.log("Route 1");
         speaker = agent !== null ? agents[agent[1].toLowerCase()] : speaker;
+
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: {
@@ -242,36 +245,9 @@ export const Convo = ({
             aiName: aiName,
           }),
         });
-        console.log(response);
-        //Text Complete
-        //  const data = response.body
-        //   if (!data) {
-        //     return
-        //   }
-        //   const reader = data.getReader()
-        //   const decoder = new TextDecoder()
-        //   let done = false
-        //   var answer = ""
-
-        //   // const responseReceived = Date.now()
-        //   while (!done) {
-        //     const { value, done: doneReading } = await reader.read()
-        //     done = doneReading
-        //     const chunkValue = decoder.decode(value)
-        //     answer = answer + chunkValue
-        //     console.log(chunkValue)
-
-        //   }
-        //   console.log(answer)
-        //   if (index === -1) {
-        //     const newIndex = newConversation([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
-        //     setIndex(newIndex)
-        // } else {
-        //     setConversations([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
-        //   }
 
         const data = response.body;
-        console.log("data", data);
+        // console.log("data", data);
         if (!data) {
           return;
         }
@@ -281,61 +257,213 @@ export const Convo = ({
         let done = false;
 
         var answer = "";
-        while (!done) {
-          const { value, done: doneReading } = await reader.read();
-          done = doneReading;
-          const chunkValue = decoder.decode(value);
-          console.log({
-            oldAnswer: answer,
-            newAnswer: answer + chunkValue,
-            chunkValue,
-            done,
-          });
-          answer = answer + chunkValue;
-        }
-        const timeReceived = Date.now();
-        if (response.status > 399) throw JSON.parse(answer);
-        console.log(answer);
 
-        if (index === -1) {
-          const newIndex = newConversation([
-            {
-              speaker: selectedAgent,
-              time: timeSent,
-              ignore: true,
-              intro: true,
-            },
-            { speaker: username, message: promptProcessed, time: timeSent },
-            {
-              speaker: speaker,
-              message:
-                speaker === selectedAgent
-                  ? answer
-                  : (answer +=
-                      "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination."),
-              time: timeReceived,
-            },
-          ]);
-          setIndex(newIndex);
+        if (response.status > 399) {
+          while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunkValue = decoder.decode(value);
+            // console.log({
+            //   oldAnswer: answer,
+            //   newAnswer: answer + chunkValue,
+            //   chunkValue,
+            //   done,
+            // });
+            answer = answer + chunkValue;
+          }
+          throw JSON.parse(answer);
         } else {
-          const newSpeaker = !conversations[index].messages.some(
-            (message) => message.speaker === speaker
-          );
-          var conversationCopy = conversations;
-          conversationCopy[index].messages = conversationCopy[
-            index
-          ].messages.concat([
-            { speaker: username, message: promptProcessed, time: timeSent },
-            {
-              speaker: speaker,
-              message: newSpeaker
-                ? (answer +=
-                    "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.")
-                : answer,
-              time: timeReceived,
-            },
-          ]);
-          setConversations(conversationCopy);
+          var inital = true;
+          var indexNew = -1;
+          var newIndex = index;
+          setLoading(2);
+          if (newIndex !== -1) {
+            var conversationCopy = conversations;
+            conversationCopy[index].messages = conversationCopy[
+              index
+            ].messages.concat([
+              {
+                speaker: username,
+                message: promptProcessed,
+                time: timeSent,
+              },
+            ]);
+            setConversations(conversationCopy);
+          }
+          const timeReceived = Date.now();
+          // console.log("test1", { conversations, index });
+          while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunkValue = decoder.decode(value);
+            // console.log({
+            //   oldAnswer: answer,
+            //   newAnswer: answer + chunkValue,
+            //   chunkValue,
+            //   done,
+            // });
+            answer = answer + chunkValue;
+            if (!done) {
+              // console.log("test1 withIndex", {
+              //   conversations,
+              //   newIndex,
+              //   answer,
+              // });
+              // const newSpeaker = !conversations[index].messages.some(
+              //   (message) => message.speaker === speaker
+              // );
+              if (index === -1) {
+                // var conversationCopy = conversations;
+                newIndex = newConversation([
+                  {
+                    speaker: selectedAgent,
+                    time: timeSent,
+                    ignore: true,
+                    intro: true,
+                  },
+                  {
+                    speaker: username,
+                    message: promptProcessed,
+                    time: timeSent,
+                  },
+                  {
+                    speaker: speaker,
+                    message: answer,
+                    time: timeReceived,
+                  },
+                ]);
+                setIndex(newIndex);
+              } else {
+                if (inital) {
+                  var conversationCopy = conversations;
+
+                  conversationCopy[index].messages = conversationCopy[
+                    index
+                  ].messages.concat([
+                    {
+                      speaker: speaker,
+                      message: answer,
+                      time: timeReceived,
+                    },
+                  ]);
+                  setConversations(conversationCopy);
+                } else {
+                  var conversationCopy = conversations;
+                  var lastMessage = conversationCopy[index].messages.length - 1;
+                  conversationCopy[index].messages[lastMessage].message =
+                    answer;
+
+                  setConversations(conversationCopy);
+                  // console.log("test3", { conversations, answer });
+                }
+              }
+              // var conversationCopy = conversations;
+              // newConversation([
+              //   {
+              //     speaker: selectedAgent,
+              //     time: timeSent,
+              //     ignore: true,
+              //     intro: true,
+              //   },
+              //   {
+              //     speaker: username,
+              //     message: promptProcessed,
+              //     time: timeSent,
+              //   },
+              //   {
+              //     speaker: speaker,
+              //     message: answer,
+              //     time: timeReceived,
+              //   },
+              // ]);
+              // console.log("test2", { conversations });
+              // newIndex = newConversation([
+              // {
+              //   speaker: selectedAgent,
+              //   time: timeSent,
+              //   ignore: true,
+              //   intro: true,
+              // },
+              // {
+              //   speaker: username,
+              //   message: promptProcessed,
+              //   time: timeSent,
+              // },
+              // ]);
+              // setIndex(newIndex);
+              // console.log(conversationCopy);
+
+              // if (inital) {
+              //   conversationCopy[newIndex].messages = conversationCopy[
+              //     newIndex
+              //   ].messages.concat([
+              // {
+              //   speaker: speaker,
+              //   message: answer,
+              //   time: timeReceived,
+              // },
+              //   ]);
+              //   setConversations(conversationCopy);
+              // } else {
+              //   var lastMessage =
+              //     conversationCopy[newIndex].messages.length - 1;
+              //   conversationCopy[newIndex].messages[lastMessage].message =
+              //     answer;
+              //   setConversations(conversationCopy);
+              // }
+            }
+            // setPrompt("");
+            inital = false;
+            // console.log("test1 pass", { conversations, answer });
+          }
+
+          if (index === -1 && speaker === selectedAgent) {
+            newIndex = newConversation([
+              {
+                speaker: selectedAgent,
+                time: timeSent,
+                ignore: true,
+                intro: true,
+              },
+              {
+                speaker: username,
+                message: promptProcessed,
+                time: timeSent,
+              },
+              {
+                speaker: speaker,
+                message: (answer +=
+                  "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination."),
+                time: timeReceived,
+              },
+            ]);
+            setIndex(newIndex);
+          } else if (
+            index > -1 &&
+            !conversations[index].messages
+              .slice(0, -1)
+              .some((message) => message.speaker === speaker)
+          ) {
+            var conversationCopy = conversations;
+            var lastMessage = conversationCopy[index].messages.length - 1;
+            conversationCopy[index].messages[lastMessage].message =
+              answer +
+              "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.";
+
+            setConversations(conversationCopy);
+          }
+          // const newSpeaker = !conversations[index].messages.some(
+          //   (message) => message.speaker === speaker
+          // );
+          // if (newSpeaker) {
+          //   var conversationCopy = conversations;
+          //   var lastMessage = conversationCopy[index].messages.length - 1;
+
+          //   conversationCopy[index].messages[lastMessage].message = answer +=
+          //     "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.";
+          //   setConversations(conversationCopy);
+          // }
+
           setPrompt("");
         }
       } else {
@@ -391,24 +519,7 @@ export const Convo = ({
         });
 
         console.log({ response2 });
-        // const dataAgentSelection = response2.body;
-        // if (!dataAgentSelection) {
-        //   return;
-        // }
-        // const readerAgentSelection = dataAgentSelection.getReader();
-        // const decoderAgentSelection = new TextDecoder();
-        // let doneAgentSelection = false;
         var answerAgentSelection = "";
-
-        // // const responseReceived = Date.now()
-        // while (!doneAgentSelection) {
-        //   const { value, done: doneReading } =
-        //     await readerAgentSelection.read();
-        //   doneAgentSelection = doneReading;
-        //   const chunkValue = decoderAgentSelection.decode(value);
-        //   answerAgentSelection = answerAgentSelection + chunkValue;
-        //   console.log(chunkValue);
-        // }
         if (response2.status > 399) throw JSON.parse(answerAgentSelection);
         answerAgentSelection = response2.data.trim();
         if (answerAgentSelection === "None")
@@ -459,32 +570,6 @@ export const Convo = ({
         });
 
         console.log(response);
-        //Text Complete
-        //  const data = response.body
-        //   if (!data) {
-        //     return
-        //   }
-        //   const reader = data.getReader()
-        //   const decoder = new TextDecoder()
-        //   let done = false
-        //   var answer = ""
-
-        //   // const responseReceived = Date.now()
-        //   while (!done) {
-        //     const { value, done: doneReading } = await reader.read()
-        //     done = doneReading
-        //     const chunkValue = decoder.decode(value)
-        //     answer = answer + chunkValue
-        //     console.log(chunkValue)
-
-        //   }
-        //   console.log(answer)
-        //   if (index === -1) {
-        //     const newIndex = newConversation([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
-        //     setIndex(newIndex)
-        // } else {
-        //     setConversations([{"speaker": "User", message: prompt},{"speaker": "AA", message: answer.trim()}])
-        //   }
 
         const data = response.body;
         console.log("data", data);
@@ -497,61 +582,124 @@ export const Convo = ({
         let done = false;
 
         var answer = "";
-        while (!done) {
-          const { value, done: doneReading } = await reader.read();
-          done = doneReading;
-          const chunkValue = decoder.decode(value);
-          console.log({
-            oldAnswer: answer,
-            newAnswer: answer + chunkValue,
-            chunkValue,
-            done,
-          });
-          answer = answer + chunkValue;
-        }
-        const timeReceived = Date.now();
-        if (response.status > 399) throw JSON.parse(answer);
-        console.log(answer);
 
-        if (index === -1) {
-          const newIndex = newConversation([
-            {
-              speaker: selectedAgent,
-              time: timeSent,
-              ignore: true,
-              intro: true,
-            },
-            { speaker: username, message: promptProcessed, time: timeSent },
-            {
-              speaker: answerAgentSelection,
-              message:
-                answerAgentSelection === selectedAgent
-                  ? answer
-                  : (answer +=
-                      "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination."),
-              time: timeReceived,
-            },
-          ]);
-          setIndex(newIndex);
+        if (response.status > 399) {
+          while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunkValue = decoder.decode(value);
+            answer = answer + chunkValue;
+          }
+          throw JSON.parse(answer);
         } else {
-          const newSpeaker = !conversations[index].messages.some(
-            (message) => message.speaker === answerAgentSelection
-          );
-          var conversationCopy = conversations;
-          conversationCopy[index].messages = conversationCopy[
-            index
-          ].messages.concat([
-            { speaker: username, message: promptProcessed, time: timeSent },
-            {
-              speaker: answerAgentSelection,
-              message: newSpeaker
-                ? (answer +=
-                    "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.")
-                : answer,
-              time: timeReceived,
-            },
-          ]);
-          setConversations(conversationCopy);
+          var inital = true;
+          var indexNew = -1;
+          var newIndex = index;
+          setLoading(2);
+          if (newIndex !== -1) {
+            var conversationCopy = conversations;
+            conversationCopy[index].messages = conversationCopy[
+              index
+            ].messages.concat([
+              {
+                speaker: username,
+                message: promptProcessed,
+                time: timeSent,
+              },
+            ]);
+            setConversations(conversationCopy);
+          }
+          // console.log("test1", { conversations, index });
+          while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunkValue = decoder.decode(value);
+            answer = answer + chunkValue;
+            const timeReceived = Date.now();
+            if (!done) {
+              if (index === -1) {
+                // var conversationCopy = conversations;
+                newIndex = newConversation([
+                  {
+                    speaker: selectedAgent,
+                    time: timeSent,
+                    ignore: true,
+                    intro: true,
+                  },
+                  {
+                    speaker: username,
+                    message: promptProcessed,
+                    time: timeSent,
+                  },
+                  {
+                    speaker: answerAgentSelection,
+                    message: answer,
+                    time: timeReceived,
+                  },
+                ]);
+                setIndex(newIndex);
+              } else {
+                if (inital) {
+                  var conversationCopy = conversations;
+
+                  conversationCopy[index].messages = conversationCopy[
+                    index
+                  ].messages.concat([
+                    {
+                      speaker: answerAgentSelection,
+                      message: answer,
+                      time: timeReceived,
+                    },
+                  ]);
+                  setConversations(conversationCopy);
+                } else {
+                  var conversationCopy = conversations;
+                  var lastMessage = conversationCopy[index].messages.length - 1;
+                  conversationCopy[index].messages[lastMessage].message =
+                    answer;
+
+                  setConversations(conversationCopy);
+                  // console.log("test3", { conversations, answer });
+                }
+              }
+            }
+            inital = false;
+          }
+          if (index === -1 && answerAgentSelection === selectedAgent) {
+            newIndex = newConversation([
+              {
+                speaker: selectedAgent,
+                time: timeSent,
+                ignore: true,
+                intro: true,
+              },
+              {
+                speaker: username,
+                message: promptProcessed,
+                time: timeSent,
+              },
+              {
+                speaker: answerAgentSelection,
+                message: (answer +=
+                  "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination."),
+                time: timeReceived,
+              },
+            ]);
+            setIndex(newIndex);
+          } else if (
+            index > -1 &&
+            !conversations[index].messages.some(
+              (message) => message.speaker === answerAgentSelection
+            )
+          ) {
+            var conversationCopy = conversations;
+            var lastMessage = conversationCopy[index].messages.length - 1;
+            conversationCopy[index].messages[lastMessage].message = answer +=
+              "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.";
+
+            setConversations(conversationCopy);
+          }
+
           setPrompt("");
         }
       }
@@ -593,18 +741,22 @@ export const Convo = ({
       setPrompt("");
     }
     setPrompt("");
-    setLoading(false);
+    setLoading(0);
     console.log("end");
     // }
   };
   {
-    console.log(conversations);
+    // console.log(conversations);
   }
 
   useEffect(() => {
     var element = document.getElementById("chatlog");
     element.scrollTop = element.scrollHeight;
-  }, [conversations[index]?.messages, loading]);
+  }, [
+    conversations[index]?.messages,
+    loading,
+    conversations[index]?.messages.at(-1).message,
+  ]);
 
   useEffect(() => {
     setMentionedAgents(
@@ -617,12 +769,6 @@ export const Convo = ({
           const lastIndexB = conversations[index]?.messages
             .map((message) => message.speaker)
             .lastIndexOf(b);
-          console.log({
-            speakerA: a.speaker,
-            speakerB: b.speaker,
-            lastIndexA,
-            lastIndexB,
-          });
           return lastIndexA - lastIndexB;
         })
     );
@@ -655,7 +801,7 @@ export const Convo = ({
                               <button padding={0}>Upgrade</button>
                           </Flex> */}
 
-        {console.log(
+        {/* {console.log(
           "convoTest",
           conversations[index]?.messages.filter((message, messageIndex) => {
             if (conversations[index]?.messages[messageIndex].error) {
@@ -673,7 +819,7 @@ export const Convo = ({
               return true;
             }
           })
-        )}
+        )} */}
         <Flex
           flexDir={"row"}
           padding={"10px"}
@@ -795,7 +941,7 @@ export const Convo = ({
             <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
           </Flex>
         }
-        {console.log({ index })}
+        {/* {console.log({ index })} */}
         {index === -1 ? (
           <Message
             time={Date.now()}
@@ -871,7 +1017,7 @@ export const Convo = ({
           .map((a, messageIndex) => {
             // const title ="Title"
             // const time = "Thursday 6:30pm"
-            console.log({ a, messageIndex });
+            // console.log({ a, messageIndex });
             return (
               <>
                 <Message
@@ -901,23 +1047,20 @@ export const Convo = ({
                   username={username}
                   time={a.time}
                   index={messageIndex}
-                  lastMessage={conversations[index]?.messages.length - 1}
+                  lastMessage={conversations[index]?.messages.length - 2}
                   message={a.message}
                   keepMessageAsIs={false}
                   speaker={a.speaker}
                   retry={() => {
                     submit({ retryIndex: true });
                   }}
+                  loading={loading}
                 />
               </>
             );
           })}
-        {loading && (
+        {loading === 1 && (
           <>
-            {console.log("retry2", {
-              length: conversations[index]?.messages.length,
-              index,
-            })}
             <Message
               speaker={username}
               username={username}
@@ -948,31 +1091,6 @@ export const Convo = ({
               username={username}
               message={""}
             />
-            {/* {
-                                index === -1 ? (
-                                        <Flex flexDirection={"row"} alignItems={"center"} margin={"16px 0px"}>
-                                        <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
-                                        <Text fontWeight={500} color={"#475467"} padding={"0px 10px"}>Today</Text>
-                                        <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
-  
-                                        </Flex>
-                                ) : (
-                                  <>
-                                    {
-                                      conversations[index].messages.length === 0 && (
-                                        <Flex flexDirection={"row"} alignItems={"center"} margin={"16px 0px"}>
-                                        <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
-                                        <Text fontWeight={500} color={"#475467"} padding={"00px 10px"}>Today</Text>
-                                        <Box borderBottom={"2px solid #EAECF0"} width={"100%"}></Box>
-  
-                                        </Flex>
-                                      )
-                                    }
-                                  </>
-                                )
-                              } */}
-
-            {/* </Flex>    */}
           </>
         )}
       </Flex>
