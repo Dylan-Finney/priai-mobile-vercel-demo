@@ -192,7 +192,9 @@ export const Message = ({
       <Flex flexDir={"column"} style={{ marginLeft: 36, marginTop: 10 }}>
         <Text
           className={
-            (loading === 2 && lastMessage === index) || (!index && loading > 0)
+            ((loading === 2 && lastMessage === index) ||
+              (!index && loading > 0)) &&
+            speaker !== username
               ? styles.message
               : null
           }
