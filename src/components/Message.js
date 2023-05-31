@@ -4,6 +4,7 @@ import { Box, Flex, Spacer, Text } from "@chakra-ui/react";
 import { Error } from "@/assets/Error";
 import { Retry } from "@/assets/Retry";
 import { agentsImages } from "./Utils";
+import styles from "./Message.module.css";
 import Image from "next/image";
 
 export const Message = ({
@@ -190,6 +191,11 @@ export const Message = ({
       </Flex>
       <Flex flexDir={"column"} style={{ marginLeft: 36, marginTop: 10 }}>
         <Text
+          className={
+            (loading === 2 && lastMessage === index) || (!index && loading > 0)
+              ? styles.message
+              : null
+          }
           style={{
             fontSize: 16,
             color: "#475467",
