@@ -5,6 +5,7 @@ import { Error } from "@/assets/Error";
 import { Retry } from "@/assets/Retry";
 import { agentsImages } from "./Utils";
 import Image from "next/image";
+import { QuerySpinner } from "@/assets/QuerySpinner";
 
 export const Message = ({
   index,
@@ -175,12 +176,7 @@ export const Message = ({
                 )}
                 {((loading === 2 && lastMessage === index) ||
                   (!index && loading > 0)) && (
-                  <Image
-                    src="/Spinner.gif"
-                    width={30}
-                    height={30}
-                    alt="Picture of the author"
-                  />
+                  <QuerySpinner loading={loading} />
                 )}
                 {error && <Error />}
               </Flex>

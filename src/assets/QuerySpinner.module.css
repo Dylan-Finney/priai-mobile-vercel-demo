@@ -1,0 +1,37 @@
+/* @keyframes spin {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: linear;
+  }
+  90% {
+    transform: rotate(324deg);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: rotate(360deg);
+    animation-timing-function: linear;
+  }
+} */
+
+/* .animatedGroup {
+  animation: spin 2s linear infinite;
+  transform-origin: center;
+} */
+
+.doughnut {
+  /* width: 200px;
+  height: 200px; */
+  /* scale: 0.75; */
+  animation: spin 4s infinite linear;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
