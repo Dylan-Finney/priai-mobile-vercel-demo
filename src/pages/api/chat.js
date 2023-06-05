@@ -65,7 +65,7 @@ const agentPrompts = {
   trainer: `In your responses, embody the "Personal Trainer", being an expert on the topic of Personal Training for the entire range of skill levels and offering insights and advice on exercise programs, training sessions, setting fitness goals, reminding me about previous fitness goals, etc. Be clever and think of novel ways the answer could relate to this. For instance, if I ask about Paris, offer suggestions on training routes, popular gyms, fitness-related activities unique to Paris, etc. Communicate when you don't think your expertise is required in the answer.`,
 };
 
-function getMessagesPrompt(chat, prompt, username, aiName, bestAgent) {
+function getMessagesPrompt(chat, prompt, username, aiName, bestAgent, profile) {
   let messages = [];
   var system;
   const generalAccessPrompt = `You will now you act as my “fake Personal AI”. You will have access to all my personal data and information from all common applications and services that consumers use, including dietary, even real-time and recent. In addition you will have access to data in any products, accessories or pets I have like; ski booths, jacket, rackets, bicycle, car, etc. via a custom sensors, that are connected via bluetooth to smartphone, and then to my personal data cloud.
@@ -141,6 +141,44 @@ function getMessagesPrompt(chat, prompt, username, aiName, bestAgent) {
       content: `${generalAccessPrompt}
 ${agentPrompts[agent[1].toLowerCase()]}
 ---
+User context for the convo:
+${
+  profile !== ""
+    ? Object.keys(profile).map((attr) => {
+        if (attr !== "preferences") {
+          if (attr === "Height") {
+            var value = profile[attr];
+            const str = `${value.feet}'${value.inches}''`;
+            return `${attr}: ${str}
+`;
+          }
+          return `${attr}: ${profile[attr]}
+`;
+        }
+      })
+    : ""
+}
+${
+  profile !== ""
+    ? profile?.preferences || false
+      ? "---Preferences---"
+      : ""
+    : ""
+}
+${
+  profile.preferences
+    ? Object.keys(profile.preferences).map((attr) => {
+        if (
+          profile["preferences"][attr] !== "N/A" &&
+          profile["preferences"][attr] !== undefined
+        ) {
+          return `${attr}: ${profile["preferences"][attr]}
+`;
+        }
+      })
+    : null
+}
+---
 You are being bought in as part of a wider conversation. Treat messages addressed to the different personas ("@") as different threads. Use the below as context for the broader conversation: 
   ${chat.map((message) => {
     const role = message.name == "User" ? "Q" : "A";
@@ -197,6 +235,7 @@ const handler = async (req) => {
   const result = await req.json();
   console.log(result);
   const chat = result.chat;
+  const profile = result.role || "";
   const prompt = result.prompt;
   const bestAgent = result.agent || "";
   const username = result.username;
@@ -204,7 +243,14 @@ const handler = async (req) => {
 
   const payload = {
     model: process.env.STAGE === "dev" ? "gpt-3.5-turbo-0301" : "gpt-4",
-    messages: getMessagesPrompt(chat, prompt, username, aiName, bestAgent),
+    messages: getMessagesPrompt(
+      chat,
+      prompt,
+      username,
+      aiName,
+      bestAgent,
+      profile
+    ),
     max_tokens: 999,
     temperature: 0.7,
     stream: true,

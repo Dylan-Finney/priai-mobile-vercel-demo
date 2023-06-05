@@ -33,6 +33,8 @@ export const Convo = ({
   setConversations,
   clearConversation,
   retryExchange,
+  profiles,
+  fakeData,
 }) => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(0);
@@ -203,6 +205,17 @@ export const Convo = ({
       ) {
         console.log("Route 1");
         speaker = agent !== null ? agents[agent[1].toLowerCase()] : speaker;
+        var role = "";
+        if (!fakeData) {
+          switch (speaker) {
+            case "Personal trainer":
+              role = "Fitness";
+              break;
+            case "Travel Guide":
+              role = "Tourist";
+              break;
+          }
+        }
 
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -243,6 +256,7 @@ export const Convo = ({
             prompt: promptProcessed,
             username: username,
             aiName: aiName,
+            role: role === "" ? undefined : profiles[role],
           }),
         });
 
