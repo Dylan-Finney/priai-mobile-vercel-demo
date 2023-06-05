@@ -140,8 +140,12 @@ function getMessagesPrompt(chat, prompt, username, aiName, bestAgent, profile) {
       role: "system",
       content: `${generalAccessPrompt}
 ${agentPrompts[agent[1].toLowerCase()]}
----
-User context for the convo:
+${
+  profile !== ""
+    ? `---
+User context for the convo:`
+    : ""
+}
 ${
   profile !== ""
     ? Object.keys(profile).map((attr) => {

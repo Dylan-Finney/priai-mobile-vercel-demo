@@ -205,8 +205,56 @@ export const Convo = ({
       ) {
         console.log("Route 1");
         speaker = agent !== null ? agents[agent[1].toLowerCase()] : speaker;
+        var answerCategorize = "";
         var role = "";
+        var type = "";
+        var include = "";
         if (!fakeData) {
+          switch (speaker) {
+            case "Personal trainer":
+              type = "Workout";
+              break;
+            case "Travel Guide":
+              type = "Travel & Tourism";
+              break;
+          }
+          console.log("test-a", { type });
+          if (type !== "") {
+            const response2 = await fetch("/api/categorize", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                prompt: promptProcessed,
+                type,
+              }),
+              // "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - (retryIndex === true ? 14 : 12) : 0,retryIndex === true ? conversations[index]?.messages.length-2 : undefined ) || [],
+            });
+            console.log({ response2 });
+            const dataCategorize = response2.body;
+            console.log("dataCategorize", dataCategorize);
+            if (!dataCategorize) {
+              return;
+            }
+
+            const readerCategorize = dataCategorize.getReader();
+            const decoderCategorize = new TextDecoder();
+            let doneCategorize = false;
+
+            while (!doneCategorize) {
+              const { value, done: doneReading } =
+                await readerCategorize.read();
+              doneCategorize = doneReading;
+              const chunkValue = decoderCategorize.decode(value);
+              answerCategorize = answerCategorize + chunkValue;
+            }
+            if (response2.status > 399) throw JSON.parse(answerCategorize);
+            console.log("test-a", { answerCategorize });
+            include = answerCategorize;
+          }
+        }
+        if (include.split(".")[0] === "Preferences") {
           switch (speaker) {
             case "Personal trainer":
               role = "Fitness";
