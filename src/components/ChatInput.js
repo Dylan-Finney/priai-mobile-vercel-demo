@@ -5,6 +5,8 @@ import { SendIcon } from "@/assets/SendIcon";
 import { MentionsInput, Mention } from "react-mentions";
 import { agents } from "./Utils";
 
+// Input
+// Seperated into Component for Rendering Optimization
 export const ChatInput = ({
   submit,
   loading,
@@ -14,14 +16,17 @@ export const ChatInput = ({
   finishDoubleClick,
 }) => {
   const [prompt, setPrompt] = useState("");
+  //Change prompt state ot reflect text box
   const handleInputChange = (event, newValue) => {
     setPrompt(newValue);
   };
+  //Reset the prompt state when the loading of the message is complete
   useEffect(() => {
     if (loading === 0) {
       setPrompt("");
     }
   }, [loading]);
+  // If the user double clicks on an agent, add their mention to the text input
   useEffect(() => {
     if (doubleClick !== "") {
       setPrompt(
@@ -32,8 +37,11 @@ export const ChatInput = ({
         )}) `
       );
     }
+    // Clear the double click when finished
     finishDoubleClick();
   }, [doubleClick]);
+
+  // When an agent is selected and it isn't the base Pri-AI, add their mention to the text box so the user can easily chat with that agent
   useEffect(() => {
     if (selectedAgent !== "" && selectedAgent !== "Personal Assistant") {
       var foundIndex = 0;
@@ -106,6 +114,7 @@ export const ChatInput = ({
           },
         }}
       >
+        {/* Allows for mentions of agents, only those from the agents list */}
         <Mention
           trigger="@"
           displayTransform={(a, display) => `@${display}`}
@@ -120,6 +129,7 @@ export const ChatInput = ({
           }}
           markup={"@[__display__](__id__)"}
         />
+        {/* Allows for mentions of sources, though there is no list of them currenlty */}
         <Mention
           trigger="#"
           displayTransform={(a, display) => `#${display}`}
@@ -135,6 +145,7 @@ export const ChatInput = ({
       <Flex
         style={{ flexDirection: "row", alignItems: "center", marginLeft: 4 }}
       >
+        {/* Submit button */}
         <Box
           onClick={() => {
             submit({ prompt });
@@ -143,7 +154,7 @@ export const ChatInput = ({
         >
           <SendIcon />
         </Box>
-
+        {/* Microphone button */}
         <MicrophoneIcon />
       </Flex>
     </Flex>

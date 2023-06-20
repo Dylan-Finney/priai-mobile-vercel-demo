@@ -3,6 +3,8 @@ import { AIAvatar } from "@/assets/AIAvatar";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Image from "next/image";
 import { agentsImages } from "./Utils";
+
+// Swiper for the Agent Icons for use in the Chat Mode Screen
 export const ChatIconsSwiper = ({ onClickAgent }) => {
   return (
     <Swiper
@@ -32,6 +34,7 @@ export const ChatIconsSwiper = ({ onClickAgent }) => {
       onSlideChange={() => console.log("slide change")}
       onSwiper={(swiper) => console.log(swiper)}
     >
+      {/* Show a Pri-AI icon for base Pri-AI */}
       <SwiperSlide style={{ padding: "10px" }}>
         <Box
           cursor={"pointer"}
@@ -44,6 +47,7 @@ export const ChatIconsSwiper = ({ onClickAgent }) => {
           <AIAvatar scale={3} />
         </Box>
       </SwiperSlide>
+      {/* Show a Agent icon for all the agents that have a set Icon */}
       {Object.keys(agentsImages)
         .filter((agent) => {
           return agentsImages[agent]?.circleAvatar || false;

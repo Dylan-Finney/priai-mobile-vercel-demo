@@ -34,13 +34,23 @@ export const Convo = ({
   clearConversation,
   retryExchange,
 }) => {
+  // Prompt State
   const [prompt, setPrompt] = useState("");
+  // Loading State
+  /* 
+  Loading = 0 : No Loading
+  Loading = 1 : Fetching Streamable Data
+  Loading = 2 : Streaming in Data
+  */
   const [loading, setLoading] = useState(0);
+  //Stores name of the agent that has been double clicked
   const [doubleClickAgent, setDoubleClickAgent] = useState("");
+  //Disclosure states for the drawer
   const { isOpen, onOpen, onClose } = useDisclosure();
+  //currentBestAgent is the Current Best Agent for the answer of the ones mentioned in the conversation. Deafult is the Personal Assistant
   const [currentBestAgent, setCurrentBestAgent] =
     useState("Personal Assistant");
-
+  // Stores all the agents that have been mentioned in the conversation
   const [mentionedAgents, setMentionedAgents] = useState(
     [...new Set(conversations[index]?.messages.map((item) => item.speaker))]
       .filter((speaker) => speaker !== "User")
@@ -60,25 +70,12 @@ export const Convo = ({
         return lastIndexA - lastIndexB;
       })
   );
-
+  //Stores the open tab in the drawer
   const [drawerTab, setDrawerTab] = useState(0);
+  // Regex for agent detection in prompt
   const pattern = /@\[(.*?)\]\((-?\d+)\)/g;
 
-  const [value, setValue] = useState("");
-
-  const swipeConfidenceThreshold = 5000;
-  const swipePower = (offset, velocity) => Math.abs(offset) * velocity;
-
-  const onDrag = async (e, info) => {
-    const { offset, velocity } = info;
-    const swipe = swipePower(offset.y, velocity.y);
-    if (offset.y > 0 && swipe > swipeConfidenceThreshold) onClose();
-  };
-
-  const handleInputChange = (event, newValue) => {
-    setPrompt(newValue);
-  };
-
+  // Intro texts for all the agents that one can start a conversation with
   const agentIntroductoryText = (agent) => {
     const BasicIntro = () => {
       return (
@@ -167,6 +164,7 @@ export const Convo = ({
     }
   };
 
+  // Get Answer
   const submit = async ({ prompt = "", retryIndex = null }) => {
     // console.log("test");
     const timeSent = Date.now();
@@ -174,6 +172,8 @@ export const Convo = ({
     setLoading(1);
 
     var promptProcessed;
+    // If previous message ended in an error and the user wishes to try again
+    // Set current prompt to previous one
     if (retryIndex === true) {
       promptProcessed =
         conversations[index]?.messages[
@@ -186,7 +186,10 @@ export const Convo = ({
       ].messages.slice(0, -2);
       // console.log({ promptProcessed, tempConversations });
       setConversations(tempConversations);
-    } else {
+    }
+    // For any other message submission
+    // Format the prompt such that instead of @[__agent__] with Mentions it is @agent
+    else {
       setPrompt(prompt);
       promptProcessed = prompt.replace(pattern, "@$1");
     }
@@ -196,6 +199,7 @@ export const Convo = ({
       console.log("test", { conversations, sampleIndex });
       const agent = promptProcessed.match(/@(\w+)/);
       var speaker = "Personal Assistant";
+      //If user mentions agent and agent exists
       if (
         (agent && Object.keys(agents).includes(agent[1].toLowerCase())) ||
         (speaker === selectedAgent &&
@@ -203,7 +207,6 @@ export const Convo = ({
       ) {
         console.log("Route 1");
         speaker = agent !== null ? agents[agent[1].toLowerCase()] : speaker;
-
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: {
@@ -466,7 +469,9 @@ export const Convo = ({
 
           setPrompt("");
         }
-      } else {
+      }
+      //If user DOES NOT mention agent or agent DOES NOT exists
+      else {
         console.log("Route 2");
         const response2 = await axios({
           url: "/api/autoselectAgent",

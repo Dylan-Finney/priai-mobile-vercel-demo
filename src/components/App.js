@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import { Box, Button, Flex, Input, Text } from "@chakra-ui/react";
 import LogoMark from "../assets/logomark";
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { EmptyThread } from "@/assets/EmptyThreads";
 import { NewThreadIcon } from "@/assets/NewThread";
 import { Thread } from "./Thread";
@@ -11,14 +11,29 @@ import { Convo } from "./Convo";
 // const username = "User"
 
 function App({ username, aiName }) {
-  const [launch, setLaunch] = useState(false);
+  // For potential expansion of the app, with different tabs
   const [screen, setScreen] = useState(0);
-  const [innerScreen, setInnerScreen] = useState(0);
+  // Checks if the app goes into "inner screen", i.e. goes into the chatbox in chat mode
+  const [innerScreen, setInnerScreen] = useState(false);
+  // Index of current/new conversation
   const [index, setIndex] = useState(-1);
-  const Context = createContext();
-  const [editMode, setEditMode] = useState(false);
+  // Which AI Agent is Seleceted (e.g. Caregiver, Sleep, etc)
   const [selectedAgent, setSelectedAgent] = useState("");
+  // Text for filtering through titles of conversations
   const [threadFilter, setThreadFilter] = useState("");
+
+  // Stores the current conversations
+  /* 
+    title: Title of conversation
+    lastAccess: Last Time the conversation was opened
+    messages: Messages in the conversation
+    messages.speaker: Who sent the message User or Agent
+    messages.message: Contents of the message
+    messages.time: Time message sent/received
+    messages.error: Error Message (Only if error)
+    messages.error.status: Error Message Status
+    messages.error.statusText: Error Message Text
+  */
   const [conversations, setConversations] = useState([
     // {title: "Example Message", messages: [
     //   {"speaker": "User", message: "@sleep What is the capital of France?"}, {"speaker": "Sleep Coach", message: "The capital of France is Paris. If you're planning a trip to Paris, I can offer suggestions on how to improve your sleep while travelling, such as adjusting your sleep schedule a few days before your trip to better align with the new time zone, using a sleep mask and earplugs to block out noise and light, and staying well-hydrated throughout your journey."},
@@ -71,6 +86,7 @@ function App({ username, aiName }) {
     // },
   ]);
 
+  // Create a new conversation and return the index of the new conversation
   const newConversations = (newMessages) => {
     var index = conversations.length;
     setConversations([
@@ -83,18 +99,6 @@ function App({ username, aiName }) {
     ]);
     return index;
   };
-  const array = [1, 1, 1, 1];
-  useEffect(() => {
-    if (launch) {
-      setTimeout(() => {
-        setLaunch(false);
-      }, 1000);
-    }
-  }, []);
-
-  useEffect(() => {
-    console.log("parent", conversations);
-  }, [conversations]);
 
   return (
     <Flex
