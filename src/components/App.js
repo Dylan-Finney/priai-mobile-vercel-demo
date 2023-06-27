@@ -1,15 +1,23 @@
 /* eslint-disable react/no-unescaped-entities */
 import { Box, Button, Flex, Input, Text } from "@chakra-ui/react";
 import LogoMark from "../assets/logomark";
-import { useEffect, useState } from "react";
+import { Component, useEffect, useState } from "react";
 import { EmptyThread } from "@/assets/EmptyThreads";
 import { NewThreadIcon } from "@/assets/NewThread";
 import { Thread } from "./Thread";
 import { ChatIconsSwiper } from "./ChatIconSwiper";
 import { Convo } from "./Convo";
 
-// const username = "User"
+// ChartJS.register(
+//   ArcElement,
+//   Tooltip,
+//   Legend,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement
+// );
 
+// const username = "User"
 function App({ username, aiName }) {
   // For potential expansion of the app, with different tabs
   const [screen, setScreen] = useState(0);
@@ -22,6 +30,7 @@ function App({ username, aiName }) {
   // Text for filtering through titles of conversations
   const [threadFilter, setThreadFilter] = useState("");
 
+  const x = true;
   // Stores the current conversations
   /* 
     title: Title of conversation

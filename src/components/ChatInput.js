@@ -15,6 +15,14 @@ export const ChatInput = ({
   selectedAgent,
   finishDoubleClick,
 }) => {
+  console.log({
+    submit,
+    loading,
+    input,
+    doubleClick,
+    selectedAgent,
+    finishDoubleClick,
+  });
   const [prompt, setPrompt] = useState("");
   //Change prompt state ot reflect text box
   const handleInputChange = (event, newValue) => {

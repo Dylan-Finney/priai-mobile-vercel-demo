@@ -6,7 +6,20 @@ import { Retry } from "@/assets/Retry";
 import { agentsImages } from "./Utils";
 import styles from "./Message.module.css";
 import Image from "next/image";
-
+import JsxParser from "react-jsx-parser";
+import "chart.js/auto";
+import {
+  Doughnut,
+  Bar,
+  Bubble,
+  Scatter,
+  Chart,
+  Line,
+  Pie,
+  PolarArea,
+  Radar,
+} from "react-chartjs-2";
+// ChartJS.register(CategoryScale, LinearScale, BarElement);
 export const Message = ({
   index,
   time,
@@ -20,6 +33,7 @@ export const Message = ({
   error,
   loading,
   retry,
+  chart,
 }) => {
   function formatTimestamp(timestamp) {
     const daysOfWeek = [
@@ -64,6 +78,7 @@ export const Message = ({
   //   error,
   //   loading,
   // });
+
   return (
     <Flex
       key={index}
@@ -225,6 +240,57 @@ export const Message = ({
             </>
           )}
         </Text>
+        {/* <JsxParser
+          components={{ Doughnut, Bar }}
+          jsx={`
+        <Bar data={{
+          labels: ['REM Sleep', 'Deep Sleep', 'Light Sleep'],
+          datasets: [
+            {
+              label: 'Sleep Duration',
+              data: [100, 70, 265],
+              backgroundColor: [
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+              ],
+              borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(255, 206, 86, 1)',
+              ],
+              borderWidth: 1,
+            },
+          ],
+        }} 
+        options={{
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true,
+                },
+              },
+            ],
+          },
+        }}
+  />
+    `}
+        /> */}
+        <JsxParser
+          components={{
+            Doughnut,
+            Bar,
+            Bubble,
+            Scatter,
+            Chart,
+            Line,
+            Pie,
+            PolarArea,
+            Radar,
+          }}
+          jsx={chart || ""}
+        />
         {error && (
           <Flex
             marginTop={"10px"}

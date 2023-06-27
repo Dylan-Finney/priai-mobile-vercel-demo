@@ -199,6 +199,7 @@ export const Convo = ({
       console.log("test", { conversations, sampleIndex });
       const agent = promptProcessed.match(/@(\w+)/);
       var speaker = "Personal Assistant";
+      var answer = "";
       //If user mentions agent and agent exists
       if (
         (agent && Object.keys(agents).includes(agent[1].toLowerCase())) ||
@@ -258,8 +259,6 @@ export const Convo = ({
         const reader = data.getReader();
         const decoder = new TextDecoder();
         let done = false;
-
-        var answer = "";
 
         if (response.status > 399) {
           while (!done) {
@@ -586,7 +585,7 @@ export const Convo = ({
         const decoder = new TextDecoder();
         let done = false;
 
-        var answer = "";
+        // var answer = "";
 
         if (response.status > 399) {
           while (!done) {
@@ -707,6 +706,51 @@ export const Convo = ({
 
           setPrompt("");
         }
+      }
+
+      console.log("TESTING", { answer });
+      const response = await fetch("/api/chart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // "chat": conversations[index]?.messages.slice(conversations[index]?.messages.length > 12 ? conversations[index]?.messages.length - (retryIndex === true ? 14 : 12) : 0,retryIndex === true ? conversations[index]?.messages.length-2 : undefined ) || [],
+          response: answer,
+        }),
+      });
+
+      const data = response.body;
+      if (!data || response.status > 399) {
+        return;
+      }
+      const reader = data.getReader();
+      const decoder = new TextDecoder();
+      var done = false;
+      var chart = "";
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        // console.log({
+        //   oldAnswer: answer,
+        //   newAnswer: answer + chunkValue,
+        //   chunkValue,
+        //   done,
+        // });
+        chart = chart + chunkValue;
+      }
+      console.log("TESTING", { chart });
+      if (index > -1) {
+        var conversationCopy = conversations;
+        var lastMessage = conversationCopy[index].messages.length - 1;
+        conversationCopy[index].messages[lastMessage].message =
+          answer +
+          "\n\nSeems like this is the first time you're speaking to me. Ask me what I can do if you want a detailed explaination.";
+        conversationCopy[index].messages[lastMessage].chart =
+          chart.substring(0, 2) === "No" ? null : chart;
+
+        setConversations(conversationCopy);
       }
     } catch (e) {
       console.error(e);
@@ -1054,6 +1098,7 @@ export const Convo = ({
                   index={messageIndex}
                   lastMessage={conversations[index]?.messages.length - 2}
                   message={a.message}
+                  chart={a.chart}
                   keepMessageAsIs={false}
                   speaker={a.speaker}
                   retry={() => {

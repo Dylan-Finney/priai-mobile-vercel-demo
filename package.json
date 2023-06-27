@@ -13,6 +13,7 @@
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "axios": "^1.4.0",
+    "chart.js": "^4.3.0",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.2",
     "eventsource-parser": "^1.0.0",
@@ -21,7 +22,9 @@
     "openai": "^3.2.1",
     "react": "18.2.0",
     "react-autosuggest": "^10.1.0",
-    "react-dom": "18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "react-jsx-parser": "^1.29.0",
     "react-mentions": "^4.4.7",
     "swiper": "^9.3.2"
   }
