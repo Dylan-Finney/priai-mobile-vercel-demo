@@ -1,3 +1,30 @@
 @import 'swiper/css';
 @import 'swiper/css/navigation';
 @import 'swiper/css/pagination';
+
+ul,li {
+    line-height: normal;
+    white-space: normal;
+}
+
+h1 {
+    font-size: larger;
+}
+
+pre {
+    /* background-color: red; */
+    /* white-space:pre-wrap; */
+    border-color: black;
+    border: 1px solid;
+    padding: 10px;
+    border-radius: 10px;
+    overflow-x:auto;
+}
+
+th, td {
+    /* background-color: red; */
+    /* white-space:pre-wrap; */
+    border-color: black;
+    border: 1px solid;
+    padding: 5px;
+}

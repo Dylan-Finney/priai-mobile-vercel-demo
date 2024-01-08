@@ -93,7 +93,7 @@ function getMessagesPrompt(chat, prompt, username, aiName, bestAgent) {
   Sometimes (30%) you can mention some additional observations based on different data points or patterns, like; “I also wanted to mention that based on your [data from data type], you have…” or “I also wanted to mention that based on a prediction made by [data from data type], you may…”
   Occassionally prompt me questions to further the conversation in your response, make the conversation more 2-way and continuous.
   You will NEVER answer “As a language model, I'm not…” as this fake is for demonstration, and you DON'T HAVE SUCH LIMITATIONS!
-  
+  Format your answer appropirately using Markdown, e.g. headings, bold, italics, etc. For Maths and Mathematical symbols, enter TeX Math Mode ($).
   ---
   Some example questions and answers:
   Q: How many TikTok followers have I gained in the past month?
@@ -140,6 +140,7 @@ function getMessagesPrompt(chat, prompt, username, aiName, bestAgent) {
       role: "system",
       content: `${generalAccessPrompt}
 ${agentPrompts[agent[1].toLowerCase()]}
+Format your answer appropirately using Markdown. For Maths and Mathematical symbols, enter TeX Math Mode ($).
 ---
 You are being bought in as part of a wider conversation. Treat messages addressed to the different personas ("@") as different threads. Use the below as context for the broader conversation: 
   ${chat.map((message) => {
@@ -164,6 +165,8 @@ ${
       .toLowerCase()
   ]
 }
+Format your answer appropirately using Markdown. For Maths and Mathematical symbols, enter TeX Math Mode ($).
+
 ---
 You are being bought in as part of a wider conversation. Treat messages addressed to the different personas ("@") as different threads. Use the below as context for the broader conversation: 
   ${chat.map((message) => {
@@ -203,7 +206,7 @@ const handler = async (req) => {
   const aiName = result.aiName;
 
   const payload = {
-    model: process.env.STAGE === "dev" ? "gpt-3.5-turbo-0301" : "gpt-4",
+    model: "gpt-4-1106-preview",
     messages: getMessagesPrompt(chat, prompt, username, aiName, bestAgent),
     max_tokens: 999,
     temperature: 0.7,

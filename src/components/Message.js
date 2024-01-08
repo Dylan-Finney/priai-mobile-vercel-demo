@@ -6,6 +6,11 @@ import { Retry } from "@/assets/Retry";
 import { agentsImages } from "./Utils";
 import styles from "./Message.module.css";
 import Image from "next/image";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import 'katex/dist/katex.min.css'
 
 export const Message = ({
   index,
@@ -208,17 +213,19 @@ export const Message = ({
             <>{message}</>
           ) : (
             <>
+              {/* <>{message}</> */}
               {message.split(/([@#]\w+)/).map((str, strIndex) => {
+                const special = ["#", "@"].includes(str.charAt(0)) && str.charAt(1) !== ' '
                 return (
                   <span
                     key={strIndex}
                     style={{
-                      fontWeight: ["#", "@"].includes(str.charAt(0))
+                      fontWeight: special
                         ? "bold"
                         : "normal",
                     }}
                   >
-                    {str}
+                    {special ?  str : <Markdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>{str}</Markdown> }
                   </span>
                 );
               })}
